@@ -14,21 +14,21 @@ REWARD = {
 
 class Env:
     def __init__(self):
-        self.qttt = Qttt()
+        self.qttt = Qttt.qttt_empty()
         self.round_ctr = 1
 
-        self.collapsed_states = [self.qttt.board.copy()]
+        self.collapsed_qttt = [Qttt.qttt_empty()]
         self.next_valid_moves = [[i for i in range(9)]]
 
     def reset(self):
-        self.qttt = Qttt()
+        self.qttt = Qttt.qttt_empty()
         self.round_ctr = 1
 
     def get_state(self):
         """
         Get current state of Qttt board
         :return:
-            Qttt.board: current board state, which is just a list of QBlock
+            Qttt: qttt object of current Env
             int mark: we use env.round_ctr as our mark for current round of play
 
         ATTENTION: we return reference instead of a copy of current state here, it
@@ -36,32 +36,35 @@ class Env:
                 by env.step().
         """
 
-        return self.qttt.board, self.round_ctr
+        return self.qttt, self.round_ctr
 
-    def step(self, collapsed_qttt_state, agent_move, mark):
+    def step(self, collapsed_qttt, agent_move, mark):
         """
         Carry out actions taken by agents
 
-        :param Qttt.board       collapsed_qttt_state: collapsed state an agent chooses
+        :param Qttt             collapsed_qttt: qttt object with collapsed state
+                                                an agent chooses
         :param tuple(int, int)  agent_move: pair of qblock ids to place spooky marks
         :param int              mark: mark used for action this round
         :return:
-            Qttt.board  next_state: updated state for Qttt board
-            int         next_mark: mark to use for the next round
-            int         reward: immediate reward for current action
-            boolean     done: if the game has reached the terminal state
+            Qttt    next_qttt: updated qttt object after step
+            int     next_mark: mark to use for the next round
+            int     reward: immediate reward for current action
+            boolean done: if the game has reached the terminal state
         """
         self.round_ctr += 1
 
-        next_state = self.qttt.step(collapsed_qttt_state, agent_move, mark)
+        self.qttt = collapsed_qttt.step(agent_move, mark)
 
         if self.qttt.has_cycle(agent_move, mark):
-            self.collapsed_states = self.qttt.get_all_possible_collapse(agent_move, mark)
+            self.collapsed_qttt = self.qttt.get_all_possible_collapse(agent_move, mark)
         else:
-            self.collapsed_states = [self.qttt.board.copy()]
-        self.next_valid_moves = [Qttt.ttt.get_ttt_from_qttt(states) for states in self.collapsed_states]
+            self.collapsed_qttt = [self.qttt.copy()]
 
-        self.qttt.propagate_qttt_to_ttt()
+        self.next_valid_moves = []
+        for qttt in self.collapsed_qttt:
+            self.next_valid_moves.append(None if qttt.has_won()[0] else qttt.get_free_QBlock_ids())
+
         done, winner = self.qttt.has_won()
 
         reward = REWARD['NO_REWARD']
@@ -69,7 +72,7 @@ class Env:
             # update reward here
             pass
 
-        return next_state, self.round_ctr, reward, done
+        return self.qttt, self.round_ctr, reward, done
 
     def get_valid_moves(self):
         """
@@ -77,20 +80,46 @@ class Env:
 
         :return:
             list(list(int)) next_valid_moves: each sub list contains ids of
-                free QBlock under a given collapsed_states, where next_valid_moves[i]
-                corresponds to id of free QBlocks for collapsed_states[i]
-            Qttt.board      collapsed_states: possible states of Qttt.board after collapse
+                free QBlock under a given collapsed_qttt, where next_valid_moves[i]
+                corresponds to id of free QBlocks for collapsed_qttt[i]
+            list(Qttt)      collapsed_qttt: possible states of Qttt.board after collapse
         """
-        return self.next_valid_moves, self.collapsed_states
+        return self.next_valid_moves, self.collapsed_qttt
 
     def has_won(self):
         return self.qttt.has_won()
 
 
 class Qttt:
-    def __init__(self):
-        self.board = [self.QBlock(i) for i in range(9)]
-        self.ttt = Qttt.ttt()
+    def __init__(self, board_state, ttt):
+        self.board = board_state
+        self.ttt = ttt
+
+    @classmethod
+    def qttt_empty(cls) -> 'Qttt':
+        return cls(board_state=[Qttt.QBlock(i) for i in range(9)], ttt=Qttt.ttt())
+
+    @classmethod
+    def qttt_with_state(cls, board_state):
+        qttt = cls(board_state=board_state, ttt=Qttt.ttt())
+        qttt.propagate_qttt_to_ttt()
+        return qttt
+
+    @classmethod
+    def qttt_with_ttt_state(cls, board_state, ttt):
+        return cls(board_state=board_state, ttt=ttt)
+
+    def get_state(self):
+        """
+        State should be read only!
+        :return:
+        """
+        return self.board
+
+    def copy(self):
+        board = self.board.copy()
+        ttt = self.ttt.board.copy()
+        return Qttt.qttt_with_ttt_state(board, ttt)
 
     def has_cycle(self, last_move, last_mark):
         """
@@ -144,23 +173,28 @@ class Qttt:
         :param tuple(int, int) last_move: last move that forms the entangle cycle
         :param int last_mark: last mark used for last move
         :return:
-            list(Qttt.board): list of Qttt.board after collapse.
+            list(Qttt): list of Qttt objects after collapse.
         """
+        board = [Qttt.QBlock(i) for i in range(9)]
+        return [Qttt.qttt_with_state(board)]
 
-        return []
-
-    def step(self, collapsed_choice, loc_pair, mark):
+    def step(self, collapsed_qttt, loc_pair, mark):
         """
         Step func modify the Qttt chess board state
 
-        :param Qttt.board collapsed_choice: if not None, it specifies what collapsed Qttt
+        :param Qttt collapsed_qttt: it specifies what collapsed Qttt
                 state that current action is based on
         :param tuple(int, int) loc_pair: each element in tuple represents the QBlock id
-                where the spooky mark is placed
+                where the spooky mark is placed. It can be None if collapsed_qttt already
+                reach the terminal state of the game
         :param int mark: mark used for this round of play. It is essentially env.ctr
         :return:
+            self
         """
         pass
+        # after step, always update corresponding ttt state
+        self.propagate_qttt_to_ttt()
+        return self
 
     def propagate_qttt_to_ttt(self):
         """
@@ -172,8 +206,16 @@ class Qttt:
         """
         self.ttt.update_ttt_from_qttt(self.board)
 
+    def get_free_QBlock_ids(self):
+        """
+        Find ids for QBlocks which haven't collapsed
+        :return:
+            np.array(int): array of QBlock ids
+        """
+        return self.ttt.get_free_block_ids()
+
     def has_won(self):
-        self.propagate_qttt_to_ttt()
+        # self.propagate_qttt_to_ttt()
         return self.ttt.has_won()
 
     class QBlock:
@@ -237,7 +279,7 @@ class Qttt:
                 int winner_mark: Odd value for 'O', Even value for 'X'
             """
             self.board[loc] = mark
-            return self.is_done()
+            return self.has_won()
 
         def update_ttt_from_qttt(self, Qttt_board):
             self.board, _ = Qttt.ttt.get_ttt_from_qttt(Qttt_board)
@@ -278,3 +320,6 @@ class Qttt:
             done = False
             winner = (5, 6)
             return done, winner
+
+        def get_free_block_ids(self):
+            return np.where(self.board == 0)[0]
