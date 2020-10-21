@@ -41,3 +41,9 @@ class GameTree:
     def reset_game_tree():
         GameTree.state_val = defaultdict(lambda x: 1)
         GameTree.state_cnt = defaultdict(lambda x: 1)
+
+    @staticmethod
+    def best_states(states, fn):
+        state_vals = [GameTree.get_stat_val(state) for state in states]
+        best_val = fn(state_vals)
+        return [states[i] for i, v in enumerate(state_vals) if v == best_val]
