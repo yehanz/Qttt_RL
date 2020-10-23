@@ -1,4 +1,5 @@
 import numpy as np
+from copy import deepcopy
 
 REWARD = {
     'NO_REWARD': 0.0,
@@ -14,14 +15,14 @@ REWARD = {
 
 class Env:
     def __init__(self):
-        self.qttt = Qttt.qttt_empty()
+        self.qttt = Qttt()
         self.round_ctr = 1
 
-        self.collapsed_qttt = [Qttt.qttt_empty()]
+        self.collapsed_qttts = [Qttt()]
         self.next_valid_moves = [[i for i in range(9)]]
 
     def reset(self):
-        self.qttt = Qttt.qttt_empty()
+        self.qttt = Qttt()
         self.round_ctr = 1
 
     def get_state(self):
@@ -38,7 +39,7 @@ class Env:
 
         return self.qttt, self.round_ctr
 
-    def step(self, collapsed_qttt, agent_move, mark):
+    def step(self, qttt, agent_move, mark):
         """
         Carry out actions taken by agents
 
@@ -54,15 +55,17 @@ class Env:
         """
         self.round_ctr += 1
 
-        self.qttt = collapsed_qttt.step(agent_move, mark)
+        self.qttt = qttt
+
+        self.qttt.step(agent_move, mark)
 
         if self.qttt.has_cycle(agent_move, mark):
-            self.collapsed_qttt = self.qttt.get_all_possible_collapse(agent_move, mark)
+            self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
         else:
-            self.collapsed_qttt = [self.qttt.copy()]
+            self.collapsed_qttts = [self.qttt.copy()]
 
         self.next_valid_moves = []
-        for qttt in self.collapsed_qttt:
+        for qttt in self.collapsed_qttts:
             self.next_valid_moves.append(None if qttt.has_won()[0] else qttt.get_free_QBlock_ids())
 
         done, winner = self.qttt.has_won()
@@ -84,17 +87,18 @@ class Env:
                 corresponds to id of free QBlocks for collapsed_qttt[i]
             list(Qttt)      collapsed_qttt: possible states of Qttt.board after collapse
         """
-        return self.next_valid_moves, self.collapsed_qttt
+        return self.next_valid_moves, self.collapsed_qttts
 
     def has_won(self):
         return self.qttt.has_won()
 
 
 class Qttt:
-    def __init__(self, board_state, ttt):
-        self.board = board_state
-        self.ttt = ttt
+    def __init__(self):
+        self.board = [Qttt.QBlock(i) for i in range(9)]
+        self.ttt = self.ttt()
 
+    '''
     @classmethod
     def qttt_empty(cls) -> 'Qttt':
         return cls(board_state=[Qttt.QBlock(i) for i in range(9)], ttt=Qttt.ttt())
@@ -108,6 +112,7 @@ class Qttt:
     @classmethod
     def qttt_with_ttt_state(cls, board_state, ttt):
         return cls(board_state=board_state, ttt=ttt)
+    '''
 
     def get_state(self):
         """
@@ -116,22 +121,44 @@ class Qttt:
         """
         return self.board
 
-    def copy(self):
-        board = self.board.copy()
-        ttt = self.ttt.board.copy()
-        return Qttt.qttt_with_ttt_state(board, ttt)
+    def has_cycle(self):
 
-    def has_cycle(self, last_move, last_mark):
-        """
-        Get cycle entanglement
+        def get_graph_info(board):
+            node_num = 0
+            edges = []
+            for block in board:
+                if not block.mark and block.entangled_blocks:
+                    node_num += 1
+                    for node1 in block.entangled_blocks:
+                        node2 = block.block_id
+                        if node1 > node2:
+                            continue
+                        edges.append((node1, node2))
+            return node_num, edges
 
-        :param tuple(int, int) last_move: last action taken by the agent, for each element
-                inside the tuple, it represents the block id of QBlock
-        :return:
-            True if there is one
-            False otherwise
-        """
-        pass
+        def validTree(n, edges):
+            if n != len(edges) + 1:
+                return False
+            parent = list(range(n))
+
+            def union(x, y):
+                root_x = find(x)
+                root_y = find(y)
+                if root_x != root_y:
+                    parent[root_y] = parent[root_x]
+
+            def find(x):
+                if x != parent[x]:
+                    parent[x] = find(parent[x])
+                return parent[x]
+
+            for x, y in edges:
+                union(x, y)
+            return len({find(i) for i in range(n)}) == 1
+
+        node_num, edges = get_graph_info(self.board)
+        # print([node_num, edges])
+        return not validTree(node_num, edges)
 
     def get_all_possible_collapse(self, last_move, last_mark):
         """
@@ -175,10 +202,25 @@ class Qttt:
         :return:
             list(Qttt): list of Qttt objects after collapse.
         """
-        board = [Qttt.QBlock(i) for i in range(9)]
-        return [Qttt.qttt_with_state(board)]
+        def consequent_collapse(board, collapsed_block_id, last_mark):
+            collapsed_block = board[collapsed_block_id]
+            if collapsed_block.mark != None:
+                return
+            entangled_block_ids, entangled_marks = collapsed_block.collapse(last_mark)
+            for i in range(len(entangled_block_ids)):
+                consequent_collapse(board, entangled_block_ids[i], entangled_marks[i])
 
-    def step(self, collapsed_qttt, loc_pair, mark):
+        choice1, choice2 = last_move
+        possible_collapse1 = deepcopy(self)
+        consequent_collapse(possible_collapse1.board, choice1, last_mark)
+
+        possible_collapse2 = deepcopy(self)
+        consequent_collapse(possible_collapse2.board, choice2, last_mark)
+        possible_collapse = [possible_collapse1, possible_collapse2]
+        return possible_collapse
+
+
+    def step(self, loc_pair, mark):
         """
         Step func modify the Qttt chess board state
 
@@ -191,11 +233,19 @@ class Qttt:
         :return:
             self
         """
-        pass
+        # put mark in pair locations
+        loc1, loc2 = loc_pair
+        self.board[loc1].place_mark(mark, loc2)
+        self.board[loc2].place_mark(mark, loc1)
         # after step, always update corresponding ttt state
-        self.propagate_qttt_to_ttt()
-        return self
+        # self.propagate_qttt_to_ttt()
 
+    def visualize_board(self):
+        # visualize the Qttt board
+        for i in range(3):
+            print("{:9s}|{:9s}|{:9s}".format(*[" ".join([str(integer) for integer in self.board[k].entangled_marks]) for k in range(i*3, i*3 + 3)]))
+
+    '''
     def propagate_qttt_to_ttt(self):
         """
         Update ttt state with Qttt state, where a block of ttt is occupied by some mark
@@ -205,6 +255,7 @@ class Qttt:
             None
         """
         self.ttt.update_ttt_from_qttt(self.board)
+    '''
 
     def get_free_QBlock_ids(self):
         """
@@ -242,25 +293,31 @@ class Qttt:
                     - at the same block_id in ttt() we have the same mark
             """
             self.entangled_blocks = []
-            self.marks = []
+            self.entangled_marks = []
             self.block_id = block_id
+            self.mark = None
 
         def place_mark(self, mark, entangle_block_id):
-            pass
+            self.entangled_marks.append(mark)
+            self.entangled_blocks.append(entangle_block_id)
 
         def collapse(self, mark):
             """
             Collapse current block.
 
             :param mark: mark to be the collapsed mark in current block
-            :return: list of entangled block number to collapse as well
+            :return: list of entangled block number to collapse and marks
             """
-            blocks_to_collapse = self.entangled_blocks
+            blocks_to_collapse = self.entangled_blocks[:]
+            marks_to_collapse = self.entangled_marks[:]
+            # remove current mark
+            current_mark_pos = marks_to_collapse.index(mark)
+            blocks_to_collapse.pop(current_mark_pos)
+            marks_to_collapse.pop(current_mark_pos)
             self.entangled_blocks = []
-            assert self.marks.count(mark) > 0
-            self.marks = [mark]
-
-            return blocks_to_collapse
+            self.entangled_marks = []
+            self.mark = mark
+            return blocks_to_collapse, marks_to_collapse
 
     class ttt:
         def __init__(self):
