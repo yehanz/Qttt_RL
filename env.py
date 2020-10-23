@@ -61,6 +61,7 @@ class Env:
 
         if self.qttt.has_cycle(agent_move, mark):
             self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
+
         else:
             self.collapsed_qttts = [self.qttt.copy()]
 
@@ -122,7 +123,6 @@ class Qttt:
         return self.board
 
     def has_cycle(self):
-
         def get_graph_info(board):
             node_num = 0
             edges = []
@@ -136,7 +136,7 @@ class Qttt:
                         edges.append((node1, node2))
             return node_num, edges
 
-        def validTree(n, edges):
+        def valid_tree(n, edges):
             if n != len(edges) + 1:
                 return False
             parent = list(range(n))
@@ -158,7 +158,7 @@ class Qttt:
 
         node_num, edges = get_graph_info(self.board)
         # print([node_num, edges])
-        return not validTree(node_num, edges)
+        return not valid_tree(node_num, edges)
 
     def get_all_possible_collapse(self, last_move, last_mark):
         """
@@ -238,14 +238,13 @@ class Qttt:
         self.board[loc1].place_mark(mark, loc2)
         self.board[loc2].place_mark(mark, loc1)
         # after step, always update corresponding ttt state
-        # self.propagate_qttt_to_ttt()
+        self.propagate_qttt_to_ttt()
 
     def visualize_board(self):
         # visualize the Qttt board
         for i in range(3):
             print("{:9s}|{:9s}|{:9s}".format(*[" ".join([str(integer) for integer in self.board[k].entangled_marks]) for k in range(i*3, i*3 + 3)]))
 
-    '''
     def propagate_qttt_to_ttt(self):
         """
         Update ttt state with Qttt state, where a block of ttt is occupied by some mark
@@ -254,8 +253,9 @@ class Qttt:
         :return:
             None
         """
-        self.ttt.update_ttt_from_qttt(self.board)
-    '''
+        # update ttt board
+        for i in range(9):
+            self.ttt.board[i] = self.board[i].mark if self.board[i].mark else 0
 
     def get_free_QBlock_ids(self):
         """
@@ -338,25 +338,6 @@ class Qttt:
             self.board[loc] = mark
             return self.has_won()
 
-        def update_ttt_from_qttt(self, Qttt_board):
-            self.board, _ = Qttt.ttt.get_ttt_from_qttt(Qttt_board)
-
-        @staticmethod
-        def get_ttt_from_qttt(Qttt_board):
-            """
-            Update the state of ttt with Qttt.board.
-            A collapsed QBlock can be characterized as
-            - QBlock.entangled_blocks is empty
-            - QBlock.marks contains only 1 element, which is the mark after collapse
-
-            :param Qttt_board: state of Qttt
-            :return:
-                np.array: ttt.board
-                list(int) free_block_ids: ids of free ttt block, where we can place
-                spooky marks on the corresponding QBlocks.
-            """
-            pass
-
         def has_won(self):
             """
             Check if the game enters a terminal state.
@@ -380,3 +361,8 @@ class Qttt:
 
         def get_free_block_ids(self):
             return np.where(self.board == 0)[0]
+
+        def visualize_board(self):
+            # visualize the ttt board
+            for i in range(3):
+                print("{:2d}|{:2d}|{:2d}".format(*[self.board[k] for k in range(i * 3, i * 3 + 3)]))
