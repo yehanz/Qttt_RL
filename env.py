@@ -59,11 +59,11 @@ class Env:
 
         self.qttt.step(agent_move, mark)
 
-        if self.qttt.has_cycle(agent_move, mark):
+        if self.qttt.has_cycle():
             self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
 
         else:
-            self.collapsed_qttts = [self.qttt.copy()]
+            self.collapsed_qttts = [deepcopy(self.qttt)]
 
         self.next_valid_moves = []
         for qttt in self.collapsed_qttts:
@@ -99,22 +99,6 @@ class Qttt:
         self.board = [Qttt.QBlock(i) for i in range(9)]
         self.ttt = self.ttt()
 
-    '''
-    @classmethod
-    def qttt_empty(cls) -> 'Qttt':
-        return cls(board_state=[Qttt.QBlock(i) for i in range(9)], ttt=Qttt.ttt())
-
-    @classmethod
-    def qttt_with_state(cls, board_state):
-        qttt = cls(board_state=board_state, ttt=Qttt.ttt())
-        qttt.propagate_qttt_to_ttt()
-        return qttt
-
-    @classmethod
-    def qttt_with_ttt_state(cls, board_state, ttt):
-        return cls(board_state=board_state, ttt=ttt)
-    '''
-
     def get_state(self):
         """
         State should be read only!
@@ -125,16 +109,19 @@ class Qttt:
     def has_cycle(self):
         def get_graph_info(board):
             node_num = 0
+            nodes = set()
             edges = []
             for block in board:
                 if not block.mark and block.entangled_blocks:
                     node_num += 1
                     for node1 in block.entangled_blocks:
                         node2 = block.block_id
+                        nodes.add(node1)
+                        nodes.add(node2)
                         if node1 > node2:
                             continue
                         edges.append((node1, node2))
-            return node_num, edges
+            return node_num, nodes, edges
 
         def valid_tree(n, edges):
             if n != len(edges) + 1:
@@ -156,9 +143,16 @@ class Qttt:
                 union(x, y)
             return len({find(i) for i in range(n)}) == 1
 
-        node_num, edges = get_graph_info(self.board)
+        node_num, nodes, edges = get_graph_info(self.board)
+        # map nodes in edges to (0, node_num)
+        mapping = {}
+        nodes = list(nodes)
+        for i in range(len(nodes)):
+            mapping[nodes[i]] = i
+        mapped_edges = [[mapping[edge[0]], mapping[edge[1]]] for edge in edges]
+
         # print([node_num, edges])
-        return not valid_tree(node_num, edges)
+        return not valid_tree(node_num, mapped_edges)
 
     def get_all_possible_collapse(self, last_move, last_mark):
         """
@@ -211,14 +205,19 @@ class Qttt:
                 consequent_collapse(board, entangled_block_ids[i], entangled_marks[i])
 
         choice1, choice2 = last_move
+
         possible_collapse1 = deepcopy(self)
         consequent_collapse(possible_collapse1.board, choice1, last_mark)
+        # always update corresponding ttt state
+        possible_collapse1.propagate_qttt_to_ttt()
 
         possible_collapse2 = deepcopy(self)
         consequent_collapse(possible_collapse2.board, choice2, last_mark)
+        # always update corresponding ttt state
+        possible_collapse2.propagate_qttt_to_ttt()
+
         possible_collapse = [possible_collapse1, possible_collapse2]
         return possible_collapse
-
 
     def step(self, loc_pair, mark):
         """
@@ -237,8 +236,6 @@ class Qttt:
         loc1, loc2 = loc_pair
         self.board[loc1].place_mark(mark, loc2)
         self.board[loc2].place_mark(mark, loc1)
-        # after step, always update corresponding ttt state
-        self.propagate_qttt_to_ttt()
 
     def visualize_board(self):
         # visualize the Qttt board
@@ -323,6 +320,7 @@ class Qttt:
         def __init__(self):
             self.board = np.zeros(9, dtype=int)
 
+        '''
         def step(self, loc, mark):
             """
             place a piece at given location
@@ -337,6 +335,7 @@ class Qttt:
             """
             self.board[loc] = mark
             return self.has_won()
+        '''
 
         def has_won(self):
             """

@@ -14,9 +14,9 @@ def test_step():
 def test_has_cycle():
     # one circle with two element
     qttt = Qttt()
-    qttt.step((1,0), 1)
+    qttt.step((2,3), 1)
     assert(qttt.has_cycle() == False)
-    qttt.step((1,0), 2)
+    qttt.step((3,2), 2)
     assert(qttt.has_cycle() == True)
 
     # one circle with four elements
@@ -80,7 +80,7 @@ def test_get_all_possible_collapse():
     s_qttt.step((8, 4), 7)
     s_qttt.step((5, 4), 8)
     s_qttt.step((2, 4), 9)
-    s_qttt.visualize_board()
+    # s_qttt.visualize_board()
 
     qttt1, qttt2 = s_qttt.get_all_possible_collapse((2, 4), 9)
     '''
@@ -108,12 +108,29 @@ def test_get_all_possible_collapse():
 
     # test to propagate to ttt
     qttt1.propagate_qttt_to_ttt()
-    qttt1.ttt.visualize_board()
+    # qttt1.ttt.visualize_board()
     assert((qttt1.ttt.board == np.array([3, 2, 9, 4, 1, 8, 5, 6, 7])).all())
 
     qttt2.propagate_qttt_to_ttt()
     assert((qttt2.ttt.board == np.array([3, 2, 1, 4, 9, 8, 5, 6, 7])).all())
 
+
+def test_get_free_QBlock_ids():
+    # one circle with four elements
+    qttt = Qttt()
+    qttt.step((0, 1), 1)
+    qttt.step((1, 2), 2)
+    qttt.step((2, 3), 3)
+    qttt.step((0, 3), 4)
+    assert((qttt.get_free_QBlock_ids() == range(0, 9)).all())
+    qttt1, qttt2 = qttt.get_all_possible_collapse((0, 3), 4)
+    qttt1.propagate_qttt_to_ttt()
+    assert ((qttt1.get_free_QBlock_ids() == range(4, 9)).all())
+    qttt2.propagate_qttt_to_ttt()
+    assert ((qttt2.get_free_QBlock_ids() == range(4, 9)).all())
+
+
 test_step()
 test_has_cycle()
 test_get_all_possible_collapse()
+test_get_free_QBlock_ids()
