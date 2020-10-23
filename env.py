@@ -1,14 +1,15 @@
 import numpy as np
 from copy import deepcopy
 
+# X is the first player
 REWARD = {
     'NO_REWARD': 0.0,
-    'O_WIN_REWARD': 1.0,
+    'Y_WIN_REWARD': 1.0,
     'X_WIN_REWARD': -1.0,
     # both O and X wins, but O wins earlier
-    'OX_WIN_REWARD': 0.7,
+    'YX_WIN_REWARD': 0.7,
     # both O and X wins, but X wins earlier
-    'XO_WIN_REWARD': -0.7,
+    'XY_WIN_REWARD': -0.7,
     'TIE_REWARD': 0.5,
 }
 
@@ -56,6 +57,11 @@ class Env:
         self.round_ctr += 1
 
         self.qttt = qttt
+        done, winner = self.qttt.has_won()
+        reward = REWARD[winner + '_REWARD']
+        if done:
+            # update reward here
+            return self.qttt, self.round_ctr, reward, done
 
         self.qttt.step(agent_move, mark)
 
@@ -68,13 +74,6 @@ class Env:
         self.next_valid_moves = []
         for qttt in self.collapsed_qttts:
             self.next_valid_moves.append(None if qttt.has_won()[0] else qttt.get_free_QBlock_ids())
-
-        done, winner = self.qttt.has_won()
-
-        reward = REWARD['NO_REWARD']
-        if done and winner:
-            # update reward here
-            pass
 
         return self.qttt, self.round_ctr, reward, done
 
@@ -151,7 +150,6 @@ class Qttt:
             mapping[nodes[i]] = i
         mapped_edges = [[mapping[edge[0]], mapping[edge[1]]] for edge in edges]
 
-        # print([node_num, edges])
         return not valid_tree(node_num, mapped_edges)
 
     def get_all_possible_collapse(self, last_move, last_mark):
@@ -354,8 +352,54 @@ class Qttt:
                     - - -                   6 8 9
             """
 
-            done = False
-            winner = (5, 6)
+            def tictactoe(moves):
+                """
+                :type moves: List[List[int]]
+                :rtype: str
+                """
+                rows = [0] * 3
+                cols = [0] * 3
+                diag = 0
+                disdiag = 0
+                max_x = 0
+                max_y = 0
+                occupied_block_num = 0
+                for idx in range(len(moves)):
+                    if moves[idx] == 0:
+                        continue
+                    occupied_block_num += 1
+                    if moves[idx] % 2 == 1:
+                        max_x = max(max_x, moves[idx])
+                    else:
+                        max_y = max(max_y, moves[idx])
+                    i = idx // 3
+                    j = idx % 3
+                    rows[i] += (moves[idx] % 2) * 2 - 1
+                    cols[j] += (moves[idx] % 2) * 2 - 1
+                    if i + j == 2:
+                        disdiag += (moves[idx] % 2) * 2 - 1
+                    if i == j:
+                        diag += (moves[idx] % 2) * 2 - 1
+                X_win = (3 in rows) or (3 in cols) or diag == 3 or disdiag == 3
+                Y_win = (-3 in rows) or (-3 in cols) or diag == -3 or disdiag == -3
+                if X_win and Y_win:
+                    if max_x < max_y:
+                        winner = 'XY_WIN'
+                    else:
+                        winner = 'YX_WIN'
+                elif X_win:
+                    winner = 'X_WIN'
+                elif Y_win:
+                    winner = 'Y_WIN'
+                else:
+                    if occupied_block_num >= 8:
+                        winner = "TIE"
+                    else:
+                        winner = "NO"
+                return winner
+
+            winner = tictactoe(self.board)
+            done = True if winner != "NO" else False
             return done, winner
 
         def get_free_block_ids(self):

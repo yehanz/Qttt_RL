@@ -36,13 +36,22 @@ def test_step():
     next_qttt = s_env.step(next_qttt, (7, 4), 6)[0]
     next_qttt = s_env.step(next_qttt, (8, 4), 7)[0]
     next_qttt = s_env.step(next_qttt, (5, 4), 8)[0]
-    params = s_env.step(next_qttt, (2, 4), 9)[0]
-    print(params)
+    free_qblock_id_lists, collapsed_qttts = s_env.get_valid_moves()
+    assert((free_qblock_id_lists[0] == range(9)).all())
+    assert((collapsed_qttts[0].ttt.board == np.zeros(9)).all())
 
-    # qttt1, qttt2 = s_qttt.get_all_possible_collapse((2, 4), 9)
+    params = s_env.step(next_qttt, (2, 4), 9)
+    free_qblock_id_lists, collapsed_qttts = s_env.get_valid_moves()
+    assert(not free_qblock_id_lists[0])
+    assert(not free_qblock_id_lists[1])
+    assert((collapsed_qttts[0].ttt.board == np.array([3, 2, 9, 4, 1, 8, 5, 6, 7])).all())
+    assert((collapsed_qttts[1].ttt.board == np.array([3, 2, 1, 4, 9, 8, 5, 6, 7])).all())
+    assert(params[1] == 10)
+    assert(params[2] == 0)
+    assert(not params[3])
 
-def test_get_valid_moves():
-    pass
+    params = s_env.step(collapsed_qttts[1], (2, 4), 9)
+    assert(params[2] == -1)
+    assert(params[3])
 
 test_step()
-test_get_valid_moves()

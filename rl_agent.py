@@ -102,7 +102,7 @@ class ProgramDriver:
 
                 agent_move, collapsed_qttt = agent.act(free_qblock_id_lists, collapsed_qttt, mark)
 
-                next_qttt, next_mark, reward, done = env.step(agent_move, collapsed_qttt, mark)
+                next_qttt, next_round, reward, done = env.step(agent_move, collapsed_qttt, mark)
 
                 agent.bellman_backup(curr_qttt, next_qttt, reward)
 
