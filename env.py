@@ -26,6 +26,10 @@ class Env:
         self.qttt = Qttt()
         self.round_ctr = 1
 
+        self.collapsed_qttts = [Qttt()]
+        self.next_valid_moves = [[i for i in range(9)]]
+        return self.qttt, self.round_ctr
+
     def get_state(self):
         """
         Get current state of Qttt board
@@ -91,6 +95,9 @@ class Env:
 
     def has_won(self):
         return self.qttt.has_won()
+
+    def render(self):
+        self.qttt.visualize_board()
 
 
 class Qttt:
@@ -237,8 +244,15 @@ class Qttt:
 
     def visualize_board(self):
         # visualize the Qttt board
-        for i in range(3):
-            print("{:9s}|{:9s}|{:9s}".format(*[" ".join([str(integer) for integer in self.board[k].entangled_marks]) for k in range(i*3, i*3 + 3)]))
+        for i in range(9):
+            if self.board[i].mark == None:
+                print("{:17s}|".format(" ".join([str(integer) for integer in self.board[i].entangled_marks])), end="")
+            else:
+                print("{:16s}*|".format(str(self.board[i].mark)), end="")
+            if i % 3 == 2:
+                print("")
+        print("")
+
 
     def propagate_qttt_to_ttt(self):
         """
@@ -263,6 +277,26 @@ class Qttt:
     def has_won(self):
         # self.propagate_qttt_to_ttt()
         return self.ttt.has_won()
+
+
+    def show_result(self):
+        done, winner = self.has_won()
+        if not done:
+            print("Game does not end")
+            return
+        print("Game ends.")
+        if winner == "X_WIN":
+            print("X wins!")
+        elif winner == "Y_WIN":
+            print("O wins!")
+        elif winner == "XY_WIN":
+            print("Both X and O win, but X wins earlier!")
+        elif winner == "YX_WIN":
+            print("Both X and O win, but O wins earlier!")
+        elif winner == "TIE":
+            print("Tie!")
+        else:
+            print(winner)
 
     class QBlock:
         def __init__(self, block_id):
