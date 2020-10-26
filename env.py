@@ -1,14 +1,15 @@
 import numpy as np
 from copy import deepcopy
+from collections import  deque
 
 # X is the first player
 REWARD = {
     'NO_REWARD': 0.0,
     'Y_WIN_REWARD': 1.0,
     'X_WIN_REWARD': -1.0,
-    # both O and X wins, but O wins earlier
+    # both Y and X wins, but Y wins earlier
     'YX_WIN_REWARD': 0.7,
-    # both O and X wins, but X wins earlier
+    # both Y and X wins, but X wins earlier
     'XY_WIN_REWARD': -0.7,
     'TIE_REWARD': 0.5,
 }
@@ -69,7 +70,7 @@ class Env:
 
         self.qttt.step(agent_move, mark)
 
-        if self.qttt.has_cycle():
+        if self.qttt.has_cycle(agent_move, mark):
             self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
 
         else:
@@ -111,52 +112,28 @@ class Qttt:
         """
         return self, mark%2
 
-    def has_cycle(self):
-        def get_graph_info(board):
-            node_num = 0
-            nodes = set()
-            edges = []
-            for block in board:
-                if not block.mark and block.entangled_blocks:
-                    node_num += 1
-                    for node1 in block.entangled_blocks:
-                        node2 = block.block_id
-                        nodes.add(node1)
-                        nodes.add(node2)
-                        if node1 > node2:
-                            continue
-                        edges.append((node1, node2))
-            return node_num, nodes, edges
-
-        def valid_tree(n, edges):
-            if n != len(edges) + 1:
-                return False
-            parent = list(range(n))
-
-            def union(x, y):
-                root_x = find(x)
-                root_y = find(y)
-                if root_x != root_y:
-                    parent[root_y] = parent[root_x]
-
-            def find(x):
-                if x != parent[x]:
-                    parent[x] = find(parent[x])
-                return parent[x]
-
-            for x, y in edges:
-                union(x, y)
-            return len({find(i) for i in range(n)}) == 1
-
-        node_num, nodes, edges = get_graph_info(self.board)
-        # map nodes in edges to (0, node_num)
-        mapping = {}
-        nodes = list(nodes)
-        for i in range(len(nodes)):
-            mapping[nodes[i]] = i
-        mapped_edges = [[mapping[edge[0]], mapping[edge[1]]] for edge in edges]
-
-        return not valid_tree(node_num, mapped_edges)
+    def has_cycle(self, agent_move, mark):
+        # bfs to find cycle
+        start_point_id, end_point_id = agent_move
+        visited = set([start_point_id])
+        q = deque([start_point_id])
+        while q:
+            cur_point_id = q.popleft()
+            cur_point = self.board[cur_point_id]
+            for i in range(len(cur_point.entangled_blocks)):
+                entangled_block = cur_point.entangled_blocks[i]
+                entangled_mark = cur_point.entangled_marks[i]
+                if entangled_block == end_point_id:
+                    if entangled_mark != mark:
+                        return True
+                    else:
+                        continue
+                if entangled_block in visited:
+                    continue
+                else:
+                    visited.add(entangled_block)
+                    q.append(entangled_block)
+        return False
 
     def get_all_possible_collapse(self, last_move, last_mark):
         """
