@@ -2,6 +2,7 @@ from tqdm import tqdm
 from GameTree import GameTree
 from env import Env, after_action_state
 import random
+import json
 
 gamma = 0.9
 
@@ -63,20 +64,27 @@ class TD_agent:
     def random_action(self, free_qblock_id_lists, collapsed_qttts):
         n = len(collapsed_qttts)
         index = random.randint(0, n-1)
-        move = random.sample(list(free_qblock_id_lists[index]), 2)
-        return collapsed_qttts[index], tuple(move)
+        if free_qblock_id_lists[index] is None:
+            move = None
+        else:
+            move = tuple(random.sample(list(free_qblock_id_lists[index]), 2))
+        return collapsed_qttts[index], move
 
     def greedy_action(self, free_qblock_id_lists, collapsed_qttts, mark):
         assert len(collapsed_qttts) > 0
         states = {}
         for i in range(len(collapsed_qttts)):
+            if free_qblock_id_lists[i] is None:
+                nstate = after_action_state(collapsed_qttts[i], None, mark)
+                states[(i, -1, -1)] = GameTree.get_state_val(nstate)
+                continue
             n = len(free_qblock_id_lists[i])
             for j in range(n-1):
                 for k in range(j+1, n):
                     loc1 = free_qblock_id_lists[i][j]
                     loc2 = free_qblock_id_lists[i][k]
                     nstate = after_action_state(collapsed_qttts[i], (loc1, loc2), mark)
-                    states[(i, j, k)] = GameTree.get_stat_val(nstate)
+                    states[(i, j, k)] = GameTree.get_state_val(nstate)
         if mark % 2 == 1:
             indices = GameTree.best_states(states, min)
         else:
@@ -96,8 +104,8 @@ class TD_agent:
         :param int  reward: immediate reward for this round
         :return: None
         """
-        state_value = GameTree.get_stat_val(qttt.get_state(mark))
-        next_state_value = GameTree.get_stat_val(next_qttt.get_state(mark))
+        state_value = GameTree.get_state_val(qttt.get_state(mark))
+        next_state_value = GameTree.get_state_val(next_qttt.get_state(mark))
         updated_state_value = state_value + self.alpha*(reward + gamma*next_state_value - state_value)
         GameTree.set_state_value(qttt.get_state(mark), updated_state_value)
 
@@ -121,9 +129,7 @@ class ProgramDriver:
                   TD_agent(self.epsilon, self.alpha, self.decay_rate)]
 
         for _ in tqdm(range(max_episode)):
-            GameTree.reset_game_tree()
-
-            # clear all state, env keep a counter for current round
+            # reset to the initial state, env keep a counter for current round
             # odd round->x, even round->o, because for each piece, it has a submark on it!
             env.reset()
 
@@ -144,7 +150,32 @@ class ProgramDriver:
                     GameTree.set_state_value(next_qttt.get_state(mark), reward)
                     break
 
-            ProgramDriver.exchange_agent_sequence(agents)
-
         ProgramDriver.save_model(save_as_file, max_episode, self.epsilon, self.alpha, self.decay_rate)
 
+    def save_model(save_file, max_episode, epsilon, alpha, decay_rate):
+        with open(save_file, 'wt') as f:
+            # write model info
+            info = dict(type="td", max_episode=max_episode, epsilon=epsilon,
+                        alpha=alpha, decay_rate=decay_rate)
+            # write state values
+            f.write('{}\n'.format(json.dumps(info)))
+            for state, value in GameTree.state_val.items():
+                vcnt = GameTree.get_state_cnt(state)
+                f.write('{}\t{:0.3f}\t{}\n'.format(state, value, vcnt))
+
+    def load_model(filename):
+        with open(filename, 'rb') as f:
+            # read model info
+            info = json.loads(f.readline().decode('ascii'))
+            for line in f:
+                elms = line.decode('ascii').split('\t')
+                state = eval(elms[0])
+                val = eval(elms[1])
+                vcnt = eval(elms[2])
+                GameTree.load_state(state, val, vcnt)
+        return info
+
+
+if __name__ == '__main__':
+    pd = ProgramDriver(epsilon=0.1, alpha=0.3, decay_rate=1.0)
+    pd.learn(10000)

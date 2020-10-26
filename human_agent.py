@@ -41,8 +41,6 @@ class HumanAgent(object):
         collapsed_qttt = collapsed_qttts[index]
 
         if free_block_ids[index] is None:
-            collapsed_qttt.show_result()
-            print("=========================")
             return collapsed_qttt, None
 
         agent_move = self.put(free_block_ids[index])
@@ -99,9 +97,6 @@ def play():
 
             collapsed_qttt, agent_move = agent.act(free_block_ids, collapsed_qttts)
             
-            if agent_move is None:
-                break
-
             state, mark, reward, done = env.step(collapsed_qttt, agent_move, mark)
 
             print('')

@@ -30,7 +30,12 @@ class GameTree:
         GameTree.state_val[state] = val
 
     @staticmethod
-    def get_stat_val(state):
+    def load_state(state, val, cnt):
+        GameTree.state_cnt[state] = cnt
+        GameTree.state_val[state] = val
+
+    @staticmethod
+    def get_state_val(state):
         return GameTree.state_val[state]
 
     @staticmethod

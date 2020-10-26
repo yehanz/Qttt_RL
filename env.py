@@ -110,7 +110,7 @@ class Qttt:
         State should be read only!
         :return:
         """
-        return self, mark%2
+        return self.to_hashable()
 
     def has_cycle(self, agent_move, mark):
         # bfs to find cycle
@@ -228,6 +228,18 @@ class Qttt:
             if i % 3 == 2:
                 print("")
         print("")
+
+    def to_hashable(self):
+        board = []
+        for i in range(9):
+            block = ()
+            if self.board[i].mark == None:
+                block = tuple(self.board[i].entangled_marks)
+                board.append(block)
+            else:
+                block = (self.board[i].mark, 0)
+                board.append(block)
+        return tuple(board)
 
 
     def propagate_qttt_to_ttt(self):
@@ -424,5 +436,7 @@ class Qttt:
 
 def after_action_state(collapsed_qttt, action, mark):
     board = deepcopy(collapsed_qttt)
+    if action is None:
+        return board.to_hashable()
     board.step(action, mark)
-    return board, mark%2
+    return board.to_hashable()
