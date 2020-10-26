@@ -15,20 +15,35 @@ def test_has_cycle():
     # one circle with two element
     qttt = Qttt()
     qttt.step((2,3), 1)
-    assert(qttt.has_cycle() == False)
-    qttt.step((3,2), 2)
-    assert(qttt.has_cycle() == True)
+
+    assert(qttt.has_cycle((2,3), 1) == False)
+    qttt.step((2,3), 2)
+    assert(qttt.has_cycle((3,2), 2) == True)
 
     # one circle with four elements
     qttt2 = Qttt()
     qttt2.step((0, 1), 1)
-    assert(qttt2.has_cycle() == False)
+    assert(qttt2.has_cycle((0, 1), 1) == False)
     qttt2.step((1, 2), 2)
-    assert (qttt2.has_cycle() == False)
+    assert (qttt2.has_cycle((1, 2), 2) == False)
     qttt2.step((2, 3), 3)
-    assert (qttt2.has_cycle() == False)
+    assert (qttt2.has_cycle((2, 3), 3) == False)
     qttt2.step((0, 3), 4)
-    assert (qttt2.has_cycle() == True)
+    assert (qttt2.has_cycle((0, 3), 4) == True)
+
+    # test no cycle
+    qttt = Qttt()
+    qttt.step((0,1), 1)
+    assert(qttt.has_cycle((0,1), 1) == False)
+    qttt.step((2,3), 2)
+    assert(qttt.has_cycle((2,3), 2) == False)
+
+    # test no cycle
+    qttt = Qttt()
+    qttt.step((2,4), 1)
+    assert(qttt.has_cycle((2,4), 1) == False)
+    qttt.step((1,4), 2)
+    assert(qttt.has_cycle((1,4), 2) == False)
 
 def test_get_all_possible_collapse():
     # one circle with four elements
