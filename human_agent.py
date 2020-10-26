@@ -27,11 +27,35 @@ class HumanAgent(object):
         else:
             print("O's turn:")
 
-    def act(self, ava_actions):
-        loc1 = self.get_location(ava_actions, "first")
+    def act(self, free_block_ids, collapsed_qttts):
+        self.show_turn()
+
+        if len(collapsed_qttts) > 1:
+            index = self.observe(collapsed_qttts)
+        else:
+            index = 0
+
+        if index is None:
+            sys.exit()
+
+        collapsed_qttt = collapsed_qttts[index]
+
+        if free_block_ids[index] is None:
+            collapsed_qttt.show_result()
+            print("=========================")
+            return collapsed_qttt, None
+
+        agent_move = self.put(free_block_ids[index])
+        if agent_move is None:
+            sys.exit()
+        return collapsed_qttts[index], agent_move
+
+
+    def put(self, free_block_ids):
+        loc1 = self.get_location(free_block_ids, "first")
         if loc1 is None:
             return None
-        loc2 = self.get_location(ava_actions, "second")
+        loc2 = self.get_location(free_block_ids, "second")
         if loc2 is None:
             return None
         action = (loc1, loc2)
@@ -71,27 +95,14 @@ def play():
         agents = [HumanAgent(1), HumanAgent(2)]
         while not done:
             agent = agent_by_mark(agents, mark)
-            ava_actions, collapsed_qttts = env.get_valid_moves()
+            free_block_ids, collapsed_qttts = env.get_valid_moves()
 
-            agent.show_turn()
-
-            if len(collapsed_qttts) > 1:
-                index = agent.observe(collapsed_qttts)
-            else:
-                index = 0
-
-            if index is None:
-                sys.exit()
-
-            if ava_actions[index] is None:
-                collapsed_qttts[index].show_result()
+            collapsed_qttt, agent_move = agent.act(free_block_ids, collapsed_qttts)
+            
+            if agent_move is None:
                 break
 
-            action = agent.act(ava_actions[index])
-            if action is None:
-                sys.exit()
-
-            state, mark, reward, done = env.step(collapsed_qttts[index], action, mark)
+            state, mark, reward, done = env.step(collapsed_qttt, agent_move, mark)
 
             print('')
             env.render()
