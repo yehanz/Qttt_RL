@@ -1,6 +1,7 @@
 from tqdm import tqdm
-from my_ttt.GameTree import GameTree
-from my_ttt.env import Env
+from GameTree import GameTree
+from env import Env, after_action_state
+import random
 
 gamma = 0.9
 
@@ -11,7 +12,7 @@ class TD_agent:
         self.alpha = alpha
         self.decay_rate = decay_rate
 
-    def act(self, free_qblock_id_lists, collapsed_qttt, mark):
+    def act(self, free_qblock_id_lists, collapsed_qttts, mark):
         """
         Choose what action to take based on given collapsed Qttt states
 
@@ -30,9 +31,9 @@ class TD_agent:
             Qttt      collapsed_qttt:
                 qttt object with collapsed state on which agent's action based on
         """
-        return self.epsilon_greedy_policy(free_qblock_id_lists, collapsed_qttt, mark)
+        return self.epsilon_greedy_policy(free_qblock_id_lists, collapsed_qttts, mark)
 
-    def epsilon_greedy_policy(self, free_qblock_id_lists, collapsed_qttt, mark):
+    def epsilon_greedy_policy(self, free_qblock_id_lists, collapsed_qttts, mark):
         """
         Choose between random move(exploration) and best move we can come up with(exploitation)
 
@@ -51,9 +52,42 @@ class TD_agent:
             Qttt      collapsed_qttt:
                 qttt object with collapsed state on which agent's action based on
         """
-        pass
+        e = random.random()
+        if e < self.epsilon * self.decay_rate:
+            collapsed_qttt, agent_move = self.random_action(free_qblock_id_lists, collapsed_qttts)
+        else:
+            collapsed_qttt, agent_move = self.greedy_action(free_qblock_id_lists, collapsed_qttts, mark)
+        return collapsed_qttt, agent_move
 
-    def bellman_backup(self, qttt, next_qttt, reward):
+
+    def random_action(self, free_qblock_id_lists, collapsed_qttts):
+        n = len(collapsed_qttts)
+        index = random.randint(0, n-1)
+        move = random.sample(list(free_qblock_id_lists[index]), 2)
+        return collapsed_qttts[index], tuple(move)
+
+    def greedy_action(self, free_qblock_id_lists, collapsed_qttts, mark):
+        assert len(collapsed_qttts) > 0
+        states = {}
+        for i in range(len(collapsed_qttts)):
+            n = len(free_qblock_id_lists[i])
+            for j in range(n-1):
+                for k in range(j+1, n):
+                    loc1 = free_qblock_id_lists[i][j]
+                    loc2 = free_qblock_id_lists[i][k]
+                    nstate = after_action_state(collapsed_qttts[i], (loc1, loc2), mark)
+                    states[(i, j, k)] = GameTree.get_stat_val(nstate)
+        if mark % 2 == 1:
+            indices = GameTree.best_states(states, min)
+        else:
+            indices = GameTree.best_states(states, max)
+        
+        i, j, k = random.choice(indices)
+        action = (collapsed_qttts[i], (j, k))
+        return action
+
+    
+    def bellman_backup(self, qttt, next_qttt, reward, mark):
         """
         Bellman backup for TD learning
 
@@ -62,10 +96,10 @@ class TD_agent:
         :param int  reward: immediate reward for this round
         :return: None
         """
-        state_value = GameTree.get_stat_val(qttt.get_State())
-        next_state_value = GameTree.get_stat_val(next_qttt.get_state())
+        state_value = GameTree.get_stat_val(qttt.get_state(mark))
+        next_state_value = GameTree.get_stat_val(next_qttt.get_state(mark))
         updated_state_value = state_value + self.alpha*(reward + gamma*next_state_value - state_value)
-        GameTree.set_state_value(qttt.get_State(), updated_state_value)
+        GameTree.set_state_value(qttt.get_state(mark), updated_state_value)
 
 
 class ProgramDriver:
@@ -98,16 +132,16 @@ class ProgramDriver:
 
                 agent = ProgramDriver.get_agent_by_mark(agents, mark)
 
-                free_qblock_id_lists, collapsed_qttt = env.get_valid_moves()
+                free_qblock_id_lists, collapsed_qttts = env.get_valid_moves()
 
-                agent_move, collapsed_qttt = agent.act(free_qblock_id_lists, collapsed_qttt, mark)
+                collapsed_qttt, agent_move = agent.act(free_qblock_id_lists, collapsed_qttts, mark)
 
-                next_qttt, next_round, reward, done = env.step(agent_move, collapsed_qttt, mark)
+                next_qttt, next_round, reward, done = env.step(collapsed_qttt, agent_move, mark)
 
-                agent.bellman_backup(curr_qttt, next_qttt, reward)
+                agent.bellman_backup(curr_qttt, next_qttt, reward, mark)
 
                 if done:
-                    GameTree.set_state_value(next_qttt.get_state(), reward)
+                    GameTree.set_state_value(next_qttt.get_state(mark), reward)
                     break
 
             ProgramDriver.exchange_agent_sequence(agents)

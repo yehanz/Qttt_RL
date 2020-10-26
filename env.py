@@ -99,18 +99,17 @@ class Env:
     def render(self):
         self.qttt.visualize_board()
 
-
 class Qttt:
     def __init__(self):
         self.board = [Qttt.QBlock(i) for i in range(9)]
         self.ttt = self.ttt()
 
-    def get_state(self):
+    def get_state(self, mark):
         """
         State should be read only!
         :return:
         """
-        return self.board
+        return self, mark%2
 
     def has_cycle(self):
         def get_graph_info(board):
@@ -288,11 +287,11 @@ class Qttt:
         if winner == "X_WIN":
             print("X wins!")
         elif winner == "Y_WIN":
-            print("O wins!")
+            print("Y wins!")
         elif winner == "XY_WIN":
-            print("Both X and O win, but X wins earlier!")
+            print("Both X and Y win, but X wins earlier!")
         elif winner == "YX_WIN":
-            print("Both X and O win, but O wins earlier!")
+            print("Both X and Y win, but Y wins earlier!")
         elif winner == "TIE":
             print("Tie!")
         else:
@@ -443,3 +442,10 @@ class Qttt:
             # visualize the ttt board
             for i in range(3):
                 print("{:2d}|{:2d}|{:2d}".format(*[self.board[k] for k in range(i * 3, i * 3 + 3)]))
+
+
+
+def after_action_state(collapsed_qttt, action, mark):
+    board = deepcopy(collapsed_qttt)
+    board.step(action, mark)
+    return board, mark%2
