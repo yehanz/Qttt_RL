@@ -84,13 +84,14 @@ class TD_agent:
                     loc1 = free_qblock_id_lists[i][j]
                     loc2 = free_qblock_id_lists[i][k]
                     nstate = after_action_state(collapsed_qttts[i], (loc1, loc2), mark)
-                    states[(i, j, k)] = GameTree.get_state_val(nstate)
+                    states[(i, loc1, loc2)] = GameTree.get_state_val(nstate)
         if mark % 2 == 1:
             indices = GameTree.best_states(states, min)
         else:
             indices = GameTree.best_states(states, max)
         
         i, j, k = random.choice(indices)
+
         action = (collapsed_qttts[i], (j, k))
         return action
 
@@ -104,10 +105,10 @@ class TD_agent:
         :param int  reward: immediate reward for this round
         :return: None
         """
-        state_value = GameTree.get_state_val(qttt.get_state(mark))
-        next_state_value = GameTree.get_state_val(next_qttt.get_state(mark))
+        state_value = GameTree.get_state_val(qttt.get_state())
+        next_state_value = GameTree.get_state_val(next_qttt.get_state())
         updated_state_value = state_value + self.alpha*(reward + gamma*next_state_value - state_value)
-        GameTree.set_state_value(qttt.get_state(mark), updated_state_value)
+        GameTree.set_state_value(qttt.get_state(), updated_state_value)
 
 
 class ProgramDriver:
@@ -147,11 +148,12 @@ class ProgramDriver:
                 agent.bellman_backup(curr_qttt, next_qttt, reward, mark)
 
                 if done:
-                    GameTree.set_state_value(next_qttt.get_state(mark), reward)
+                    GameTree.set_state_value(next_qttt.get_state(), reward)
                     break
 
         ProgramDriver.save_model(save_as_file, max_episode, self.epsilon, self.alpha, self.decay_rate)
 
+    @staticmethod
     def save_model(save_file, max_episode, epsilon, alpha, decay_rate):
         with open(save_file, 'wt') as f:
             # write model info
@@ -163,6 +165,7 @@ class ProgramDriver:
                 vcnt = GameTree.get_state_cnt(state)
                 f.write('{}\t{:0.3f}\t{}\n'.format(state, value, vcnt))
 
+    @staticmethod
     def load_model(filename):
         with open(filename, 'rb') as f:
             # read model info
@@ -177,5 +180,7 @@ class ProgramDriver:
 
 
 if __name__ == '__main__':
+    # info = ProgramDriver.load_model('TD_policy.dat')
+    # pd = ProgramDriver(epsilon=info['epsilon'], alpha=info['alpha'], decay_rate=info['decay_rate'])
     pd = ProgramDriver(epsilon=0.1, alpha=0.3, decay_rate=1.0)
-    pd.learn(10000)
+    pd.learn(100000)

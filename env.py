@@ -105,7 +105,7 @@ class Qttt:
         self.board = [Qttt.QBlock(i) for i in range(9)]
         self.ttt = self.ttt()
 
-    def get_state(self, mark):
+    def get_state(self):
         """
         State should be read only!
         :return:
