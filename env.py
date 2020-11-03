@@ -19,8 +19,33 @@ class Env:
         self.qttt = Qttt()
         self.round_ctr = 1
 
-        self.collapsed_qttts = [Qttt()]
-        self.next_valid_moves = [[i for i in range(9)]]
+        # all possible collapsed version of current qttt
+        self.collapsed_qttts = [Qttt(), Qttt()]
+        # for each collapsed version, what's the valid move(ids of free Qlock)
+        self.next_valid_moves = [[i for i in range(9)], [i for i in range(9)]]
+        # for each collapsed move, what's the block number that we choose for the
+        # lastest piece on the board to collapse
+        self.collapsed_actions = []
+
+    @property
+    def player_id_for_current_round(self):
+        # either 0 or 1
+        return self.round_ctr % 2
+
+    def get_state_from_constant_view(self):
+        """
+        if current player play odd piece, return a copy of qttt directly
+        else all piece number on current board decrease by 1 so that we
+        always get a constant view from player who always play odd pieces
+
+        player with id 0 always play pieces with odd number, with id 1 play
+        even number pieces
+
+        :return:
+            qttt curr_qttt: constant view of the board
+            int whose_turn: id of the current player, which is round_ctr%2
+        """
+        pass
 
     def reset(self):
         self.qttt = Qttt()
@@ -39,6 +64,12 @@ class Env:
         """
 
         return self.qttt, self.round_ctr
+
+    def get_action_space(self):
+        return self.collapsed_actions, self.next_valid_moves
+
+    def step_with_code(self, collapsed_qttt_idx, agent_move):
+        self.step(self.collapsed_qttts[collapsed_qttt_idx], agent_move)
 
     def step(self, qttt, agent_move, mark):
         """
@@ -66,10 +97,14 @@ class Env:
         self.qttt.step(agent_move, mark)
 
         if self.qttt.has_cycle():
-            self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
+            self.collapsed_actions, self.collapsed_qttts = \
+                self.qttt.get_all_possible_collapse(agent_move, mark)
 
         else:
-            self.collapsed_qttts = [deepcopy(self.qttt)]
+            qttt_copy = deepcopy(self.qttt)
+            # always take a list of 2 qttts for convenience
+            self.collapsed_qttts = [qttt_copy, qttt_copy]
+            self.collapsed_actions = []
 
         self.next_valid_moves = []
         for qttt in self.collapsed_qttts:
@@ -193,10 +228,14 @@ class Qttt:
         :param int last_mark: last mark used for last move
         :return:
             list(Qttt): list of Qttt objects after collapse.
+            list(int): collapsed choice, element represents the block id we choose
+                    to collapse as the final block for the spooky piece the
+                    opponent placed last time.
         """
+
         def consequent_collapse(board, collapsed_block_id, last_mark):
             collapsed_block = board[collapsed_block_id]
-            if collapsed_block.mark != None:
+            if collapsed_block.mark is not None:
                 return
             entangled_block_ids, entangled_marks = collapsed_block.collapse(last_mark)
             for i in range(len(entangled_block_ids)):
@@ -215,7 +254,7 @@ class Qttt:
         possible_collapse2.propagate_qttt_to_ttt()
 
         possible_collapse = [possible_collapse1, possible_collapse2]
-        return possible_collapse
+        return [choice1, choice2], possible_collapse
 
     def step(self, loc_pair, mark):
         """
@@ -238,11 +277,13 @@ class Qttt:
     def visualize_board(self):
         # visualize the Qttt board
         for i in range(3):
-            print("{:9s}|{:9s}|{:9s}".format(*[" ".join([str(integer) for integer in self.board[k].entangled_marks]) for k in range(i*3, i*3 + 3)]))
+            print("{:9s}|{:9s}|{:9s}".format(
+                *[" ".join([str(integer) for integer in self.board[k].entangled_marks]) for k in
+                  range(i * 3, i * 3 + 3)]))
 
     def propagate_qttt_to_ttt(self):
         """
-        Update ttt state with Qttt state, where a block of ttt is occupied by some mark
+        update ttt state with Qttt state, where a block of ttt is occupied by some mark
         only if the corresponding QBlock has collapsed
 
         :return:

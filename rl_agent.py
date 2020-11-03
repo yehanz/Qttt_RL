@@ -1,6 +1,6 @@
 from tqdm import tqdm
-from my_ttt.GameTree import GameTree
-from my_ttt.env import Env
+from GameTree import GameTree
+from env import Env
 
 gamma = 0.9
 

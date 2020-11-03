@@ -1,5 +1,5 @@
 import numpy as np
-
+import copy
 
 def learn_from_self_play(game, nnet, config):
     """
@@ -35,7 +35,6 @@ def learn_from_self_play(game, nnet, config):
 
         # generate 50% new data with current nn
         while len(training_example) < config.training_dataset_limit:
-            # TODO: use a new MC tree for each episode?
             training_example += run_one_episode(game, curr_net, config)
 
         # training a new nn based on curr nn
@@ -51,10 +50,6 @@ def learn_from_self_play(game, nnet, config):
             curr_net = competitor_net
 
 
-def encode_action_space(param):
-    pass
-
-
 def run_one_episode(env, curr_net, config):
     # we can use only 1 tree here
     monte_carlo_trees = [MTCS(curr_net, config.exploration_level),
@@ -64,48 +59,77 @@ def run_one_episode(env, curr_net, config):
     while True:
         curr_qttt, whose_turn = env.get_state_from_constant_view()
 
+        # get player's search tree
         mc = monte_carlo_trees[whose_turn]
 
+        # roll out iteration of select, expand, network evaluate, bp.
         for _ in range(config.rounds_of_planning):
-            mc.search(curr_qttt)
+            mc.search(copy.deepcopy(env))
 
         # [state, p, None]
-        state, policy_given_state = mc.get_policy_for_state(curr_qttt)
-
-        # mask invalid move, normalize probability
-        # env.action_space() return list of tuple (collapse_block_id, free_qblock_ids)
-        # which will be converted to action code
-        valid_action_codes = encode_action_space(env.action_space())
-        valid_policy_given_state = propagate_valid_action_probability_vector(
-            valid_action_codes, policy_given_state)
-        training_examples.append([state, valid_policy_given_state, None])
-
-        # choose action
-        action_code = np.random.choice(len(valid_policy_given_state), p=valid_policy_given_state)
-        # decode_action_code covert an action code to (collapse_block_id, agent_move)
-        # we use collapse_block_id to choose what is the collapsed qttt
-        agent_move, collapsed_qttt = act(decode_action_code(action_code), env.action_space())
+        state, policy_given_state = mc.get_policy_for_root_state()
+        collapsed_qttt, agent_move, normalized_valid_policy_vec, action_code = \
+            Env_NetWork_Bridge.choose_among_valid_moves(env, policy_given_state)
 
         # step action
-        next_qttt, _, reward, done = env.step(agent_move, collapsed_qttt)
+        next_qttt, _, reward, done = env.step(collapsed_qttt, agent_move)
+        mc.step(action_code)
 
         if done:
             update_reward(training_examples, reward)
             break
 
+        # register data
+        training_examples.append([state, normalized_valid_policy_vec, None])
+
         return training_examples
 
 
-def propagate_valid_action_probability_vector(valid_action_codes, policy_given_state):
-    pass
+class Env_NetWork_Bridge:
+    @staticmethod
+    def decode_action_code(action_code):
+        collapsed_qttt_idx = action_code % (9 * 8)
+        i = (action_code - 1) // 9
+        j = action_code - 1 - 8 * i
+        agent_move = (i, j)
+        return collapsed_qttt_idx, agent_move
 
+    @staticmethod
+    def get_valid_action_mask(env):
+        """
 
-def encode_valid_move(agent_move, collapsed_qttt):
-    pass
+        :param action_space:
+        :return:
+            np.array valid_move_mask
+        """
+        collapsed_action, next_valid_moves = env.get_action_space()
+        mask = np.zeros(9 * 8 * 2)
+        # TODO: need more efficient algorithm
+        for valid_move_for_a_qttt in next_valid_moves:
+            for i in range(len(valid_move_for_a_qttt)):
+                for j in range(i, len(valid_move_for_a_qttt)):
+                    mask[8 * i + j + 1] = 1
+        return mask
 
+    @staticmethod
+    def choose_among_valid_moves(env, policy_given_state):
+        # mask invalid move, normalize probability
+        # env.action_space() return list of tuple (collapse_block_id, free_qblock_ids)
+        # which will be converted to action code
+        valid_action_mask = Env_NetWork_Bridge.get_valid_action_mask(env)
 
-def act(action_code, agent_move, collapsed_qttt):
-    pass
+        valid_policy_vec = valid_action_mask * policy_given_state
+        normalized_valid_policy_vec = valid_policy_vec / np.linalg.norm(valid_policy_vec)
+
+        # choose action
+        action_code = np.random.choice(len(normalized_valid_policy_vec),
+                                       p=normalized_valid_policy_vec)
+
+        # decode_action_code covert an action code to (collapse_block_id, agent_move)
+        # we use collapse_block_id to choose what is the collapsed qttt
+        collapsed_qttt_idx, agent_move = Env_NetWork_Bridge.decode_action_code(action_code)
+        return env.collapsed_qttts[collapsed_qttt_idx], agent_move, \
+               normalized_valid_policy_vec, action_code
 
 
 def update_reward(training_examples, reward):
