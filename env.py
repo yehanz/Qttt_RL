@@ -27,6 +27,10 @@ class Env:
         self.qttt = Qttt()
         self.round_ctr = 1
 
+        self.collapsed_qttts = [Qttt()]
+        self.next_valid_moves = [[i for i in range(9)]]
+        return self.qttt, self.round_ctr
+
     def get_state(self):
         """
         Get current state of Qttt board
@@ -93,6 +97,8 @@ class Env:
     def has_won(self):
         return self.qttt.has_won()
 
+    def render(self):
+        self.qttt.visualize_board()
 
 class Qttt:
     def __init__(self):
@@ -104,7 +110,7 @@ class Qttt:
         State should be read only!
         :return:
         """
-        return self.board
+        return self.to_hashable()
 
     def has_cycle(self, agent_move, mark):
         # bfs to find cycle
@@ -214,8 +220,27 @@ class Qttt:
 
     def visualize_board(self):
         # visualize the Qttt board
-        for i in range(3):
-            print("{:9s}|{:9s}|{:9s}".format(*[" ".join([str(integer) for integer in self.board[k].entangled_marks]) for k in range(i*3, i*3 + 3)]))
+        for i in range(9):
+            if self.board[i].mark == None:
+                print("{:17s}|".format(" ".join([str(integer) for integer in self.board[i].entangled_marks])), end="")
+            else:
+                print("{:16s}*|".format(str(self.board[i].mark)), end="")
+            if i % 3 == 2:
+                print("")
+        print("")
+
+    def to_hashable(self):
+        board = []
+        for i in range(9):
+            block = ()
+            if self.board[i].mark == None:
+                block = tuple(self.board[i].entangled_marks)
+                board.append(block)
+            else:
+                block = (self.board[i].mark, 0)
+                board.append(block)
+        return tuple(board)
+
 
     def propagate_qttt_to_ttt(self):
         """
@@ -240,6 +265,26 @@ class Qttt:
     def has_won(self):
         # self.propagate_qttt_to_ttt()
         return self.ttt.has_won()
+
+
+    def show_result(self):
+        done, winner = self.has_won()
+        if not done:
+            print("Game does not end")
+            return
+        print("Game ends.")
+        if winner == "X_WIN":
+            print("X wins!")
+        elif winner == "Y_WIN":
+            print("Y wins!")
+        elif winner == "XY_WIN":
+            print("Both X and Y win, but X wins earlier!")
+        elif winner == "YX_WIN":
+            print("Both X and Y win, but Y wins earlier!")
+        elif winner == "TIE":
+            print("Tie!")
+        else:
+            print(winner)
 
     class QBlock:
         def __init__(self, block_id):
@@ -386,3 +431,12 @@ class Qttt:
             # visualize the ttt board
             for i in range(3):
                 print("{:2d}|{:2d}|{:2d}".format(*[self.board[k] for k in range(i * 3, i * 3 + 3)]))
+
+
+
+def after_action_state(collapsed_qttt, action, mark):
+    board = deepcopy(collapsed_qttt)
+    if action is None:
+        return board.to_hashable()
+    board.step(action, mark)
+    return board.to_hashable()

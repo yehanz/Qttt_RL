@@ -5,8 +5,8 @@ class GameTree:
 
     # note when accessing an unseen state, state count returns 1
     # so that you don't have to increase state counter by 1 when update the state value
-    state_val = defaultdict(lambda x: 1.0)
-    state_cnt = defaultdict(lambda x: 1)
+    state_val = defaultdict(lambda: 0.0)
+    state_cnt = defaultdict(lambda: 1)
 
     @staticmethod
     def set_state_value(state, val):
@@ -30,7 +30,12 @@ class GameTree:
         GameTree.state_val[state] = val
 
     @staticmethod
-    def get_stat_val(state):
+    def load_state(state, val, cnt):
+        GameTree.state_cnt[state] = cnt
+        GameTree.state_val[state] = val
+
+    @staticmethod
+    def get_state_val(state):
         return GameTree.state_val[state]
 
     @staticmethod
@@ -39,11 +44,10 @@ class GameTree:
 
     @staticmethod
     def reset_game_tree():
-        GameTree.state_val = defaultdict(lambda x: 1)
-        GameTree.state_cnt = defaultdict(lambda x: 1)
+        GameTree.state_val = defaultdict(lambda: 0.0)
+        GameTree.state_cnt = defaultdict(lambda: 1)
 
     @staticmethod
     def best_states(states, fn):
-        state_vals = [GameTree.get_stat_val(state) for state in states]
-        best_val = fn(state_vals)
-        return [states[i] for i, v in enumerate(state_vals) if v == best_val]
+        best_val = fn(states.values())
+        return [k for k, v in states.items() if v == best_val]
