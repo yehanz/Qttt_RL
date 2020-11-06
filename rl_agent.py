@@ -182,4 +182,4 @@ if __name__ == '__main__':
     # info = ProgramDriver.load_model('TD_policy.dat')
     # pd = ProgramDriver(epsilon=info['epsilon'], alpha=info['alpha'], decay_rate=info['decay_rate'])
     pd = ProgramDriver(epsilon=0.1, alpha=0.3, decay_rate=1.0)
-    pd.learn(100000)
+    pd.learn(100)
