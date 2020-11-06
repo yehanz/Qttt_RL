@@ -1,14 +1,15 @@
 import numpy as np
 from copy import deepcopy
+from collections import  deque
 
 # X is the first player
 REWARD = {
     'NO_REWARD': 0.0,
     'Y_WIN_REWARD': 1.0,
     'X_WIN_REWARD': -1.0,
-    # both O and X wins, but O wins earlier
+    # both Y and X wins, but Y wins earlier
     'YX_WIN_REWARD': 0.7,
-    # both O and X wins, but X wins earlier
+    # both Y and X wins, but X wins earlier
     'XY_WIN_REWARD': -0.7,
     'TIE_REWARD': 0.5,
 }
@@ -50,6 +51,10 @@ class Env:
     def reset(self):
         self.qttt = Qttt()
         self.round_ctr = 1
+
+        self.collapsed_qttts = [Qttt()]
+        self.next_valid_moves = [[i for i in range(9)]]
+        return self.qttt, self.round_ctr
 
     def get_state(self):
         """
@@ -127,6 +132,8 @@ class Env:
     def has_won(self):
         return self.qttt.has_won()
 
+    def render(self):
+        self.qttt.visualize_board()
 
 class Qttt:
     def __init__(self):
@@ -138,54 +145,30 @@ class Qttt:
         State should be read only!
         :return:
         """
-        return self.board
+        return self.to_hashable()
 
-    def has_cycle(self):
-        def get_graph_info(board):
-            node_num = 0
-            nodes = set()
-            edges = []
-            for block in board:
-                if not block.mark and block.entangled_blocks:
-                    node_num += 1
-                    for node1 in block.entangled_blocks:
-                        node2 = block.block_id
-                        nodes.add(node1)
-                        nodes.add(node2)
-                        if node1 > node2:
-                            continue
-                        edges.append((node1, node2))
-            return node_num, nodes, edges
-
-        def valid_tree(n, edges):
-            if n != len(edges) + 1:
-                return False
-            parent = list(range(n))
-
-            def union(x, y):
-                root_x = find(x)
-                root_y = find(y)
-                if root_x != root_y:
-                    parent[root_y] = parent[root_x]
-
-            def find(x):
-                if x != parent[x]:
-                    parent[x] = find(parent[x])
-                return parent[x]
-
-            for x, y in edges:
-                union(x, y)
-            return len({find(i) for i in range(n)}) == 1
-
-        node_num, nodes, edges = get_graph_info(self.board)
-        # map nodes in edges to (0, node_num)
-        mapping = {}
-        nodes = list(nodes)
-        for i in range(len(nodes)):
-            mapping[nodes[i]] = i
-        mapped_edges = [[mapping[edge[0]], mapping[edge[1]]] for edge in edges]
-
-        return not valid_tree(node_num, mapped_edges)
+    def has_cycle(self, agent_move, mark):
+        # bfs to find cycle
+        start_point_id, end_point_id = agent_move
+        visited = set([start_point_id])
+        q = deque([start_point_id])
+        while q:
+            cur_point_id = q.popleft()
+            cur_point = self.board[cur_point_id]
+            for i in range(len(cur_point.entangled_blocks)):
+                entangled_block = cur_point.entangled_blocks[i]
+                entangled_mark = cur_point.entangled_marks[i]
+                if entangled_block == end_point_id:
+                    if entangled_mark != mark:
+                        return True
+                    else:
+                        continue
+                if entangled_block in visited:
+                    continue
+                else:
+                    visited.add(entangled_block)
+                    q.append(entangled_block)
+        return False
 
     def get_all_possible_collapse(self, last_move, last_mark):
         """
@@ -276,10 +259,26 @@ class Qttt:
 
     def visualize_board(self):
         # visualize the Qttt board
-        for i in range(3):
-            print("{:9s}|{:9s}|{:9s}".format(
-                *[" ".join([str(integer) for integer in self.board[k].entangled_marks]) for k in
-                  range(i * 3, i * 3 + 3)]))
+        for i in range(9):
+            if self.board[i].mark == None:
+                print("{:17s}|".format(" ".join([str(integer) for integer in self.board[i].entangled_marks])), end="")
+            else:
+                print("{:16s}*|".format(str(self.board[i].mark)), end="")
+            if i % 3 == 2:
+                print("")
+        print("")
+
+    def to_hashable(self):
+        board = []
+        for i in range(9):
+            block = ()
+            if self.board[i].mark == None:
+                block = tuple(self.board[i].entangled_marks)
+                board.append(block)
+            else:
+                block = (self.board[i].mark, 0)
+                board.append(block)
+        return tuple(board)
 
     def propagate_qttt_to_ttt(self):
         """
@@ -304,6 +303,26 @@ class Qttt:
     def has_won(self):
         # self.propagate_qttt_to_ttt()
         return self.ttt.has_won()
+
+
+    def show_result(self):
+        done, winner = self.has_won()
+        if not done:
+            print("Game does not end")
+            return
+        print("Game ends.")
+        if winner == "X_WIN":
+            print("X wins!")
+        elif winner == "Y_WIN":
+            print("Y wins!")
+        elif winner == "XY_WIN":
+            print("Both X and Y win, but X wins earlier!")
+        elif winner == "YX_WIN":
+            print("Both X and Y win, but Y wins earlier!")
+        elif winner == "TIE":
+            print("Tie!")
+        else:
+            print(winner)
 
     class QBlock:
         def __init__(self, block_id):
@@ -450,3 +469,12 @@ class Qttt:
             # visualize the ttt board
             for i in range(3):
                 print("{:2d}|{:2d}|{:2d}".format(*[self.board[k] for k in range(i * 3, i * 3 + 3)]))
+
+
+
+def after_action_state(collapsed_qttt, action, mark):
+    board = deepcopy(collapsed_qttt)
+    if action is None:
+        return board.to_hashable()
+    board.step(action, mark)
+    return board.to_hashable()
