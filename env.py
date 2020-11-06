@@ -22,6 +22,7 @@ class Env:
 
         self.collapsed_qttts = [Qttt()]
         self.next_valid_moves = [[i for i in range(9)]]
+        self.collapse_choice = ()
 
     def reset(self):
         self.qttt = Qttt()
@@ -70,9 +71,11 @@ class Env:
 
         if self.qttt.has_cycle(agent_move, mark):
             self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
+            self.collapse_choice = agent_move
 
         else:
             self.collapsed_qttts = [deepcopy(self.qttt)]
+            self.collapse_choice = ()
 
         self.next_valid_moves = []
         for qttt in self.collapsed_qttts:
@@ -89,7 +92,7 @@ class Env:
                 corresponds to id of free QBlocks for collapsed_qttt[i]
             list(Qttt)      collapsed_qttt: possible states of Qttt.board after collapse
         """
-        return self.next_valid_moves, self.collapsed_qttts
+        return self.next_valid_moves, self.collapsed_qttts, self.collapse_choice
 
     def has_won(self):
         return self.qttt.has_won()

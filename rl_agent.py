@@ -138,7 +138,7 @@ class ProgramDriver:
 
                 agent = ProgramDriver.get_agent_by_mark(agents, mark)
 
-                free_qblock_id_lists, collapsed_qttts = env.get_valid_moves()
+                free_qblock_id_lists, collapsed_qttts, _ = env.get_valid_moves()
 
                 collapsed_qttt, agent_move = agent.act(free_qblock_id_lists, collapsed_qttts, mark)
 
