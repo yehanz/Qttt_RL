@@ -61,10 +61,9 @@ class TD_agent:
             collapsed_qttt, agent_move = self.greedy_action(free_qblock_id_lists, collapsed_qttts, mark)
         return collapsed_qttt, agent_move
 
-
     def random_action(self, free_qblock_id_lists, collapsed_qttts):
         n = len(collapsed_qttts)
-        index = random.randint(0, n-1)
+        index = random.randint(0, n - 1)
         if free_qblock_id_lists[index] is None:
             move = None
         else:
@@ -80,8 +79,8 @@ class TD_agent:
                 states[(i, -1, -1)] = GameTree.get_state_val(nstate)
                 continue
             n = len(free_qblock_id_lists[i])
-            for j in range(n-1):
-                for k in range(j+1, n):
+            for j in range(n - 1):
+                for k in range(j + 1, n):
                     loc1 = free_qblock_id_lists[i][j]
                     loc2 = free_qblock_id_lists[i][k]
                     nstate = after_action_state(collapsed_qttts[i], (loc1, loc2), mark)
@@ -90,13 +89,12 @@ class TD_agent:
             indices = GameTree.best_states(states, min)
         else:
             indices = GameTree.best_states(states, max)
-        
+
         i, j, k = random.choice(indices)
 
         action = (collapsed_qttts[i], (j, k))
         return action
 
-    
     def bellman_backup(self, qttt, next_qttt, reward, mark):
         """
         Bellman backup for TD learning
@@ -108,7 +106,7 @@ class TD_agent:
         """
         state_value = GameTree.get_state_val(qttt.get_state())
         next_state_value = GameTree.get_state_val(next_qttt.get_state())
-        updated_state_value = state_value + self.alpha*(reward + gamma*next_state_value - state_value)
+        updated_state_value = state_value + self.alpha * (reward + gamma * next_state_value - state_value)
         GameTree.set_state_value(qttt.get_state(), updated_state_value)
 
 

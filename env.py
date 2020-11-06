@@ -101,9 +101,8 @@ class Env:
 
         self.qttt.step(agent_move, mark)
 
-        if self.qttt.has_cycle():
-            self.collapsed_actions, self.collapsed_qttts = \
-                self.qttt.get_all_possible_collapse(agent_move, mark)
+        if self.qttt.has_cycle(agent_move, mark):
+            self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
 
         else:
             qttt_copy = deepcopy(self.qttt)
@@ -469,7 +468,6 @@ class Qttt:
             # visualize the ttt board
             for i in range(3):
                 print("{:2d}|{:2d}|{:2d}".format(*[self.board[k] for k in range(i * 3, i * 3 + 3)]))
-
 
 
 def after_action_state(collapsed_qttt, action, mark):
