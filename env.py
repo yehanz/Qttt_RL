@@ -1,6 +1,6 @@
 import numpy as np
 from copy import deepcopy
-from collections import  deque
+from collections import deque
 
 # X is the first player
 REWARD = {
@@ -15,13 +15,15 @@ REWARD = {
 }
 
 
+
+
 class Env:
     def __init__(self):
         self.qttt = Qttt()
         self.round_ctr = 1
 
         self.collapsed_qttts = [Qttt()]
-        self.next_valid_moves = [[i for i in range(9)]]
+        self.next_valid_moves = [np.arange(9)]
         self.collapse_choice = ()
 
     def reset(self):
@@ -29,7 +31,7 @@ class Env:
         self.round_ctr = 1
 
         self.collapsed_qttts = [Qttt()]
-        self.next_valid_moves = [[i for i in range(9)]]
+        self.next_valid_moves = [np.arange(9)]
         return self.qttt, self.round_ctr
 
     def get_state(self):
@@ -45,7 +47,7 @@ class Env:
 
         return self.qttt, self.round_ctr
 
-    def step(self, qttt, agent_move, mark):
+    def step(self, qttt, agent_move, mark=None):
         """
         Carry out actions taken by agents
         :param Qttt             collapsed_qttt: qttt object with collapsed state
@@ -58,6 +60,9 @@ class Env:
             int     reward: immediate reward for current action
             boolean done: if the game has reached the terminal state
         """
+        if not mark:
+            mark = self.round_ctr
+
         self.round_ctr += 1
 
         self.qttt = qttt
@@ -100,10 +105,16 @@ class Env:
     def render(self):
         self.qttt.visualize_board()
 
+
 class Qttt:
     def __init__(self):
         self.board = [Qttt.QBlock(i) for i in range(9)]
         self.ttt = self.ttt()
+
+    def change_to_constant_view(self, bias):
+        for qblock in self.board:
+            qblock.change_to_constant_view(bias)
+        self.ttt.change_to_constant_view(bias)
 
     def get_state(self):
         """
@@ -167,6 +178,7 @@ class Qttt:
         :return:
             list(Qttt): list of Qttt objects after collapse.
         """
+
         def consequent_collapse(board, collapsed_block_id, last_mark):
             collapsed_block = board[collapsed_block_id]
             if collapsed_block.mark != None:
@@ -230,7 +242,6 @@ class Qttt:
                 board.append(block)
         return tuple(board)
 
-
     def propagate_qttt_to_ttt(self):
         """
         Update ttt state with Qttt state, where a block of ttt is occupied by some mark
@@ -253,7 +264,6 @@ class Qttt:
     def has_won(self):
         # self.propagate_qttt_to_ttt()
         return self.ttt.has_won()
-
 
     def show_result(self):
         done, winner = self.has_won()
@@ -298,6 +308,10 @@ class Qttt:
             self.block_id = block_id
             self.mark = None
 
+        def change_to_constant_view(self, bias):
+            self.entangled_marks = [mark + bias for mark in self.entangled_marks]
+            self.mark = self.mark if self.mark is None else self.mark + bias
+
         def place_mark(self, mark, entangle_block_id):
             self.entangled_marks.append(mark)
             self.entangled_blocks.append(entangle_block_id)
@@ -339,6 +353,9 @@ class Qttt:
             self.board[loc] = mark
             return self.has_won()
         '''
+
+        def change_to_constant_view(self, bias):
+            self.board += bias
 
         def has_won(self):
             """
@@ -413,7 +430,6 @@ class Qttt:
             # visualize the ttt board
             for i in range(3):
                 print("{:2d}|{:2d}|{:2d}".format(*[self.board[k] for k in range(i * 3, i * 3 + 3)]))
-
 
 
 def after_action_state(collapsed_qttt, action, mark):
