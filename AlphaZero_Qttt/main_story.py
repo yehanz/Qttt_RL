@@ -2,9 +2,9 @@ import numpy as np
 from copy import deepcopy
 from env import REWARD
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
+from AlphaZero_Qttt.Network import Network
 
-
-def learn_from_self_play(game_env: EnvForDeepRL, nnet, config):
+def learn_from_self_play(game_env: EnvForDeepRL, nnet:Network, config):
     """
     Main story for the deep RL agent
 
@@ -41,8 +41,8 @@ def learn_from_self_play(game_env: EnvForDeepRL, nnet, config):
             training_example += run_one_episode(game_env, curr_net, config)
 
         # training a new nn based on curr nn
-        competitor_net = nnet.deep_copy()
-        train(competitor_net, training_example)
+        competitor_net = deepcopy(curr_net)
+        competitor_net.train(training_example)
 
         # if competitor_net better than self.curr_net
         new_wins, old_wins = battle(game_env, competitor_net, curr_net, config)
@@ -89,10 +89,6 @@ def run_one_episode(game_env: EnvForDeepRL, curr_net, config):
 def update_reward(training_examples, reward):
     for example in training_examples:
         example[-1] *= reward
-
-
-def train(competitor_net, training_example):
-    pass
 
 
 def battle(game_env, competitor_net, curr_net, config):

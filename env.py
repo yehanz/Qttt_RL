@@ -1,6 +1,7 @@
-import numpy as np
 from copy import deepcopy
-from collections import deque
+
+import numpy as np
+import torch
 
 # X is the first player
 REWARD = {
@@ -11,10 +12,8 @@ REWARD = {
     'YX_WIN_REWARD': 0.7,
     # both Y and X wins, but X wins earlier
     'XY_WIN_REWARD': -0.7,
-    'TIE_REWARD': 0.5,
+    'TIE_REWARD': 0.0,
 }
-
-
 
 
 class Env:
@@ -32,6 +31,7 @@ class Env:
 
         self.collapsed_qttts = [Qttt()]
         self.next_valid_moves = [np.arange(9)]
+        self.collapse_choice = ()
         return self.qttt, self.round_ctr
 
     def get_state(self):
@@ -74,7 +74,7 @@ class Env:
 
         self.qttt.step(agent_move, mark)
 
-        if self.qttt.has_cycle(agent_move, mark):
+        if self.qttt.has_cycle:
             self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
             self.collapse_choice = agent_move
 
@@ -107,14 +107,16 @@ class Env:
 
 
 class Qttt:
+
     def __init__(self):
         self.board = [Qttt.QBlock(i) for i in range(9)]
-        self.ttt = self.ttt()
+        self.ttt = Qttt.ttt()
+        self.has_cycle = False
 
-    def change_to_constant_view(self, bias):
+    def flip_odd_and_even(self, bias):
         for qblock in self.board:
-            qblock.change_to_constant_view(bias)
-        self.ttt.change_to_constant_view(bias)
+            qblock.flip_odd_and_even(bias)
+        self.ttt.flip_odd_and_even(bias)
 
     def get_state(self):
         """
@@ -123,28 +125,9 @@ class Qttt:
         """
         return self.to_hashable()
 
-    def has_cycle(self, agent_move, mark):
-        # bfs to find cycle
-        start_point_id, end_point_id = agent_move
-        visited = set([start_point_id])
-        q = deque([start_point_id])
-        while q:
-            cur_point_id = q.popleft()
-            cur_point = self.board[cur_point_id]
-            for i in range(len(cur_point.entangled_blocks)):
-                entangled_block = cur_point.entangled_blocks[i]
-                entangled_mark = cur_point.entangled_marks[i]
-                if entangled_block == end_point_id:
-                    if entangled_mark != mark:
-                        return True
-                    else:
-                        continue
-                if entangled_block in visited:
-                    continue
-                else:
-                    visited.add(entangled_block)
-                    q.append(entangled_block)
-        return False
+    def _has_cycle(self, agent_move):
+        return bool(self.board[agent_move[0]].entangled_marks and
+                    self.board[agent_move[1]].entangled_marks)
 
     def get_all_possible_collapse(self, last_move, last_mark):
         """
@@ -181,7 +164,7 @@ class Qttt:
 
         def consequent_collapse(board, collapsed_block_id, last_mark):
             collapsed_block = board[collapsed_block_id]
-            if collapsed_block.mark != None:
+            if not collapsed_block.entangled_blocks and collapsed_block.entangled_marks:
                 return
             entangled_block_ids, entangled_marks = collapsed_block.collapse(last_mark)
             for i in range(len(entangled_block_ids)):
@@ -214,6 +197,7 @@ class Qttt:
         :return:
             self
         """
+        self.has_cycle = self._has_cycle(loc_pair)
         # put mark in pair locations
         loc1, loc2 = loc_pair
         self.board[loc1].place_mark(mark, loc2)
@@ -222,10 +206,10 @@ class Qttt:
     def visualize_board(self):
         # visualize the Qttt board
         for i in range(9):
-            if self.board[i].mark == None:
+            if not self.board[i].has_collapsed:
                 print("{:17s}|".format(" ".join([str(integer) for integer in self.board[i].entangled_marks])), end="")
             else:
-                print("{:16s}*|".format(str(self.board[i].mark)), end="")
+                print("{:16s}*|".format(str(self.board[i].collapsed_mark)), end="")
             if i % 3 == 2:
                 print("")
         print("")
@@ -233,12 +217,11 @@ class Qttt:
     def to_hashable(self):
         board = []
         for i in range(9):
-            block = ()
-            if self.board[i].mark == None:
+            if not self.board[i].has_collapsed:
                 block = tuple(self.board[i].entangled_marks)
                 board.append(block)
             else:
-                block = (self.board[i].mark, 0)
+                block = (self.board[i].collapsed_mark, 0)
                 board.append(block)
         return tuple(board)
 
@@ -251,7 +234,8 @@ class Qttt:
         """
         # update ttt board
         for i in range(9):
-            self.ttt.board[i] = self.board[i].mark if self.board[i].mark else 0
+            self.ttt.board[i] = self.board[i].collapsed_mark \
+                if self.board[i].has_collapsed else self.ttt.board[i]
 
     def get_free_QBlock_ids(self):
         """
@@ -284,6 +268,24 @@ class Qttt:
         else:
             print(winner)
 
+    def to_tensor(self):
+        """
+        convert qttt to a 10*3*3 tensor
+        last channel represents collapsed block state, 0 means block hasn't collapsed
+            non-zero block represents piece that collapses at this location
+
+        first 9 channels:
+            for collapsed block, all channels are 0
+            otherwise for piece with num k presented at Qblock (i,j), then tensor(k,i,j)=1
+            else 0
+        :return:
+        """
+        tensor_repr = torch.zeros(10, 9)
+        for idx, qblock in enumerate(self.board):
+            tensor_repr[-1][idx] = qblock.has_collapsed
+            tensor_repr[qblock.entangled_marks][idx] = 1
+        return tensor_repr.reshape(10, 3, 3)
+
     class QBlock:
         def __init__(self, block_id):
             """
@@ -306,11 +308,17 @@ class Qttt:
             self.entangled_blocks = []
             self.entangled_marks = []
             self.block_id = block_id
-            self.mark = None
 
-        def change_to_constant_view(self, bias):
-            self.entangled_marks = [mark + bias for mark in self.entangled_marks]
-            self.mark = self.mark if self.mark is None else self.mark + bias
+        @property
+        def has_collapsed(self):
+            return self.entangled_marks and not self.entangled_blocks
+
+        @property
+        def collapsed_mark(self):
+            return self.entangled_marks[0] if self.has_collapsed else None
+
+        def flip_odd_and_even(self, flip_bit):
+            self.entangled_marks = [mark ^ flip_bit for mark in self.entangled_marks]
 
         def place_mark(self, mark, entangle_block_id):
             self.entangled_marks.append(mark)
@@ -322,20 +330,21 @@ class Qttt:
             :param mark: mark to be the collapsed mark in current block
             :return: list of entangled block number to collapse and marks
             """
-            blocks_to_collapse = self.entangled_blocks[:]
-            marks_to_collapse = self.entangled_marks[:]
+            blocks_to_collapse = self.entangled_blocks
+            marks_to_collapse = self.entangled_marks
             # remove current mark
             current_mark_pos = marks_to_collapse.index(mark)
             blocks_to_collapse.pop(current_mark_pos)
             marks_to_collapse.pop(current_mark_pos)
             self.entangled_blocks = []
-            self.entangled_marks = []
-            self.mark = mark
+            self.entangled_marks = [mark]
             return blocks_to_collapse, marks_to_collapse
 
     class ttt:
+        EMPTY_BLOCK_VAL = -1
+
         def __init__(self):
-            self.board = np.zeros(9, dtype=int)
+            self.board = np.ones(9, dtype=int) * Qttt.ttt.EMPTY_BLOCK_VAL
 
         '''
         def step(self, loc, mark):
@@ -354,13 +363,13 @@ class Qttt:
             return self.has_won()
         '''
 
-        def change_to_constant_view(self, bias):
-            self.board += bias
+        def flip_odd_and_even(self, flip_bit):
+            self.board = np.where(self.board < 0, self.board, self.board ^ flip_bit)
 
         def has_won(self):
             """
             Check if the game enters a terminal state.
-            TODO: I think when a Qttt reached a terminal state, all of its block should have
+            When a Qttt reached a terminal state, all of its block should have
             collapsed, so we are able to determine if it is a tie, a winner or 2 winners from
             the ttt state only.
             :param ttt: current ttt state of Qttt
@@ -386,7 +395,7 @@ class Qttt:
                 max_y = 0
                 occupied_block_num = 0
                 for idx in range(len(moves)):
-                    if moves[idx] == 0:
+                    if moves[idx] == Qttt.ttt.EMPTY_BLOCK_VAL:
                         continue
                     occupied_block_num += 1
                     if moves[idx] % 2 == 1:
@@ -424,7 +433,7 @@ class Qttt:
             return done, winner
 
         def get_free_block_ids(self):
-            return np.where(self.board == 0)[0]
+            return np.where(self.board == Qttt.ttt.EMPTY_BLOCK_VAL)[0]
 
         def visualize_board(self):
             # visualize the ttt board
