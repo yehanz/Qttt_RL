@@ -33,11 +33,11 @@ class EnvForDeepRL(Env):
         # if this env is a constant view converted from other game env
         # then this attribute indicates the bias added to each piece
         # on the chess board of the current env
-        self.bias_back_to_normal_view = 0
+        self.player_id = 1
 
     @property
     def current_player_id(self):
-        return self.round_ctr % 2 + self.bias_back_to_normal_view
+        return self.player_id
 
     @property
     def valid_action_mask(self):
@@ -56,24 +56,20 @@ class EnvForDeepRL(Env):
             mask = np.concatenate((mask, mask))
         return mask
 
+    def _flip_odd_and_even(self):
+        self.round_ctr ^= 1
+        self.qttt.flip_odd_and_even(1)
+        for qttt in self.collapsed_qttts:
+            qttt.flip_odd_and_even(1)
+
     def change_to_even_pieces_view(self):
-        if self.round_ctr % 2 == 1:
-            if self.bias_back_to_normal_view == 0:
-                self.qttt.change_to_constant_view(1)
-                for qttt in self.collapsed_qttts:
-                    qttt.change_to_constant_view(1)
-                self.round_ctr += 1
-                self.bias_back_to_normal_view = -1
-            elif self.bias_back_to_normal_view == -1:
-                self.change_to_normal_view()
+        if self.player_id != 0:
+            self._flip_odd_and_even()
 
     def change_to_normal_view(self):
-        if self.bias_back_to_normal_view == -1:
-            self.qttt.change_to_constant_view(self.bias_back_to_normal_view)
-            for qttt in self.collapsed_qttts:
-                qttt.change_to_constant_view(self.bias_back_to_normal_view)
-            self.round_ctr += self.bias_back_to_normal_view
-            self.bias_back_to_normal_view = 0
+        # in normal view, round_ctr and player_id share the same oddity
+        if (self.round_ctr & 1) ^ self.player_id == 1:
+            self._flip_odd_and_even()
 
     def index_to_agent_move(self, prob_vector_index):
         collapsed_qttt_idx = prob_vector_index % 36
@@ -81,13 +77,17 @@ class EnvForDeepRL(Env):
         return self.collapsed_qttts[collapsed_qttt_idx], INDEX_TO_MOVE[index_0_to_35]
 
     def pick_a_valid_move(self, net_prob_vector):
-        net_prob_vector = net_prob_vector * self.valid_action_mask
-        valid_prob_vector = net_prob_vector / net_prob_vector.sum()
+        # net_prob_vector = net_prob_vector * self.valid_action_mask
+        # valid_prob_vector = net_prob_vector / net_prob_vector.sum()
 
         # choose action
-        action_code = np.random.choice(len(valid_prob_vector), p=valid_prob_vector)
+        action_code = np.random.choice(len(net_prob_vector), p=net_prob_vector)
+        return action_code
 
+    def act(self, action_code):
         # decode_action_code covert an action code to (collapse_block_id, agent_move)
         # we use collapse_block_id to choose what is the collapsed qttt
-        collapsed_qttt_idx, agent_move = self.index_to_agent_move(action_code)
-        return collapsed_qttt_idx, agent_move, valid_prob_vector, action_code
+        collapsed_qttt, agent_move = self.index_to_agent_move(action_code)
+        self.player_id = self.player_id ^ 1
+        return super().step(collapsed_qttt, agent_move)
+

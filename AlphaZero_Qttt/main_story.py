@@ -1,6 +1,6 @@
 import numpy as np
 from copy import deepcopy
-
+from env import REWARD
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
 
 
@@ -55,41 +55,40 @@ def learn_from_self_play(game_env: EnvForDeepRL, nnet, config):
 
 def run_one_episode(game_env: EnvForDeepRL, curr_net, config):
     # we can use only 1 tree here
-    monte_carlo_trees = [MTCS(curr_net, config.exploration_level),
-                         MTCS(curr_net, config.exploration_level), ]
+    monte_carlo_trees = [MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+                              curr_net, config.exploration_level),
+                         MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+                              curr_net, config.exploration_level), ]
     training_examples = []
 
     while True:
         # get player's search tree
         mc = monte_carlo_trees[game_env.current_player_id]
 
-        # roll out iteration of select, expand, network evaluate, bp.
-        # MCTS and neural net always use a game env from even pieces view
-        for _ in range(config.rounds_of_planning):
-            mc.search(deepcopy(game_env).change_to_even_pieces_view())
-
-        # [state_from_even_piece_view, probabilistic_policy, None]
-        state, policy_given_state = mc.get_policy_for_root_state()
-        collapsed_qttt, agent_move, valid_policy_vec, action_code = \
-            game_env.pick_a_valid_move(policy_given_state)
+        # [state_from_even_piece_view, probabilistic_policy, 1/-1]
+        state, policy_given_state = mc.get_action_prob()
+        action_code = game_env.pick_a_valid_move(policy_given_state)
 
         # step action
-        _, _, reward, done = game_env.step(collapsed_qttt, agent_move)
-        mc.step(action_code)
-
-        if done:
-            update_reward(training_examples, reward)
-            break
+        _, _, winner, done = game_env.act(action_code)
+        for mct in monte_carlo_trees:
+            mct.step(action_code)
 
         # register data
-        training_examples.append([state, valid_policy_vec, None])
+        training_examples.append([state, policy_given_state,
+                                  (-1) ** game_env.current_player_id])
+
+        if done:
+            reward = REWARD[winner + '_REWARD']
+            update_reward(training_examples, reward)
+            break
 
         return training_examples
 
 
 def update_reward(training_examples, reward):
     for example in training_examples:
-        example[-1] = reward
+        example[-1] *= reward
 
 
 def train(competitor_net, training_example):
@@ -103,8 +102,10 @@ def battle(game_env, competitor_net, curr_net, config):
                     the final action
     """
     # we can use only 1 tree here
-    competitor_mc = MTCS(competitor_net, config.exploration_level)
-    curr_mc = MTCS(curr_net, config.exploration_level)
+    competitor_mc = MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+                         competitor_net, config.exploration_level)
+    curr_mc = MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+                   curr_net, config.exploration_level)
     monte_carlo_trees = [competitor_mc, curr_mc]
 
     score_board = {competitor_mc: 0, curr_mc: 0}
@@ -113,24 +114,17 @@ def battle(game_env, competitor_net, curr_net, config):
         while True:
             mc = monte_carlo_trees[game_env.current_player_id]
 
-            for _ in range(config.rounds_of_planning):
-                mc.search(deepcopy(game_env).change_to_even_pieces_view())
-
-            # roll out iteration of select, expand, network evaluate, bp.
-            # MCTS and neural net always use a game game_env from even pieces view
-            for _ in range(config.rounds_of_planning):
-                mc.search(deepcopy(game_env).change_to_even_pieces_view())
-
             # [state_from_even_piece_view, probabilistic_policy, None]
-            state, policy_given_state = mc.get_policy_for_root_state()
-            collapsed_qttt, agent_move, valid_policy_vec, action_code = \
-                game_env.pick_a_valid_move(policy_given_state)
+            state, policy_given_state = mc.get_action_prob()
+            action_code = game_env.pick_a_valid_move(policy_given_state)
 
             # step action
-            _, _, reward, done = game_env.step(collapsed_qttt, agent_move)
-            mc.step(action_code)
+            _, _, winner, done = game_env.act(action_code)
+            for mct in monte_carlo_trees:
+                mct.step(action_code)
 
             if done:
+                reward = REWARD[winner + '_REWARD']
                 if reward > 0:
                     score_board[monte_carlo_trees[game_env.current_player_id]] += 1
                 elif reward < 0:
