@@ -27,4 +27,7 @@ class Network:
         :param training_example:
         :return:
         """
+
+        # first use qttt.to_tensor convert all qttt to tensor before loading
+        # to the dataset.
         pass
