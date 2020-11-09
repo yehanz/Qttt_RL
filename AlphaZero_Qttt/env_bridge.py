@@ -1,6 +1,6 @@
-from env import Env
 import numpy as np
-from copy import deepcopy
+
+from env import Env
 
 INDEX_TO_MOVE = [
     (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8),
@@ -30,14 +30,6 @@ class EnvForDeepRL(Env):
 
     def __init__(self):
         super(EnvForDeepRL, self).__init__()
-        # if this env is a constant view converted from other game env
-        # then this attribute indicates the bias added to each piece
-        # on the chess board of the current env
-        self.player_id = 1
-
-    @property
-    def current_player_id(self):
-        return self.player_id
 
     @property
     def valid_action_mask(self):
@@ -56,20 +48,24 @@ class EnvForDeepRL(Env):
             mask = np.concatenate((mask, mask))
         return mask
 
-    def _flip_odd_and_even(self):
-        self.round_ctr ^= 1
-        self.qttt.flip_odd_and_even(1)
+    def _add_bias_to_pieces(self, bias):
+        self.round_ctr += bias
+        self.qttt.add_bias_to_pieces(bias)
         for qttt in self.collapsed_qttts:
-            qttt.flip_odd_and_even(1)
+            qttt.add_bias_to_pieces(bias)
 
     def change_to_even_pieces_view(self):
-        if self.player_id != 0:
-            self._flip_odd_and_even()
+        # normal view, odd piece's turn
+        if self.round_ctr & 1 != 0:
+            if self.player_id != 0:
+                self._add_bias_to_pieces(1)
+            elif self.player_id == 0:
+                self._add_bias_to_pieces(-1)
 
     def change_to_normal_view(self):
         # in normal view, round_ctr and player_id share the same oddity
         if (self.round_ctr & 1) ^ self.player_id == 1:
-            self._flip_odd_and_even()
+            self._add_bias_to_pieces(-1)
 
     def index_to_agent_move(self, prob_vector_index):
         collapsed_qttt_idx = prob_vector_index % 36
@@ -90,4 +86,3 @@ class EnvForDeepRL(Env):
         collapsed_qttt, agent_move = self.index_to_agent_move(action_code)
         self.player_id = self.player_id ^ 1
         return super().step(collapsed_qttt, agent_move)
-

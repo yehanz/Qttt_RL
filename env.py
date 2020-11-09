@@ -20,10 +20,23 @@ class Env:
     def __init__(self):
         self.qttt = Qttt()
         self.round_ctr = 1
+        self.player_id = 1
 
         self.collapsed_qttts = [Qttt()]
         self.next_valid_moves = [np.arange(9)]
         self.collapse_choice = ()
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            if self.qttt != other.qttt or self.collapsed_qttts != other.collapsed_qttts or \
+                    self.collapse_choice != other.collapse_choice:
+                return False
+            return True
+        return False
+
+    @property
+    def current_player_id(self):
+        return self.player_id
 
     def reset(self):
         self.qttt = Qttt()
@@ -63,21 +76,16 @@ class Env:
         if not mark:
             mark = self.round_ctr
 
+        # update states
         self.round_ctr += 1
+        self.player_id = self.player_id ^ 1
 
         self.qttt = qttt
-        done, winner = self.qttt.has_won()
-        reward = REWARD[winner + '_REWARD']
-        if done:
-            # update reward here
-            return self.qttt, self.round_ctr, reward, done
-
         self.qttt.step(agent_move, mark)
 
         if self.qttt.has_cycle:
             self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
             self.collapse_choice = agent_move
-
         else:
             self.collapsed_qttts = [deepcopy(self.qttt)]
             self.collapse_choice = ()
@@ -85,6 +93,12 @@ class Env:
         self.next_valid_moves = []
         for qttt in self.collapsed_qttts:
             self.next_valid_moves.append(None if qttt.has_won()[0] else qttt.get_free_QBlock_ids())
+
+        done, winner = self.qttt.has_won()
+        reward = REWARD[winner + '_REWARD']
+        if done:
+            # update reward here
+            return self.qttt, self.round_ctr, reward, done
 
         return self.qttt, self.round_ctr, reward, done
 
@@ -113,10 +127,19 @@ class Qttt:
         self.ttt = Qttt.ttt()
         self.has_cycle = False
 
-    def flip_odd_and_even(self, bias):
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            for q1, q2 in zip(self.board, other.board):
+                if (q1.entangled_marks != q2.entangled_marks) or \
+                        (q1.entangled_blocks != q2.entangled_blocks):
+                    return False
+            return True
+        return False
+
+    def add_bias_to_pieces(self, bias):
         for qblock in self.board:
-            qblock.flip_odd_and_even(bias)
-        self.ttt.flip_odd_and_even(bias)
+            qblock.add_bias_to_pieces(bias)
+        self.ttt.add_bias_to_pieces(bias)
 
     def get_state(self):
         """
@@ -197,6 +220,9 @@ class Qttt:
         :return:
             self
         """
+        if loc_pair is None:
+            self.has_cycle = False
+            return
         self.has_cycle = self._has_cycle(loc_pair)
         # put mark in pair locations
         loc1, loc2 = loc_pair
@@ -271,20 +297,22 @@ class Qttt:
     def to_tensor(self):
         """
         convert qttt to a 10*3*3 tensor
-        last channel represents collapsed block state, 0 means block hasn't collapsed
+        first channel represents collapsed block state, 0 means block hasn't collapsed
             non-zero block represents piece that collapses at this location
 
-        first 9 channels:
+        last 9 channels:
             for collapsed block, all channels are 0
             otherwise for piece with num k presented at Qblock (i,j), then tensor(k,i,j)=1
             else 0
         :return:
         """
-        tensor_repr = torch.zeros(10, 9)
+        tensor_repr = torch.zeros(9, 11)
         for idx, qblock in enumerate(self.board):
-            tensor_repr[-1][idx] = qblock.has_collapsed
-            tensor_repr[qblock.entangled_marks][idx] = 1
-        return tensor_repr.reshape(10, 3, 3)
+            tensor_repr[idx][0] = qblock.has_collapsed
+            if qblock.entangled_marks:
+                tensor_repr[idx][qblock.entangled_marks] = 1
+        return tensor_repr.t().reshape(11, 3, 3)
+
 
     class QBlock:
         def __init__(self, block_id):
@@ -311,14 +339,14 @@ class Qttt:
 
         @property
         def has_collapsed(self):
-            return self.entangled_marks and not self.entangled_blocks
+            return bool(self.entangled_marks and not self.entangled_blocks)
 
         @property
         def collapsed_mark(self):
             return self.entangled_marks[0] if self.has_collapsed else None
 
-        def flip_odd_and_even(self, flip_bit):
-            self.entangled_marks = [mark ^ flip_bit for mark in self.entangled_marks]
+        def add_bias_to_pieces(self, bias):
+            self.entangled_marks = [mark + bias for mark in self.entangled_marks]
 
         def place_mark(self, mark, entangle_block_id):
             self.entangled_marks.append(mark)
@@ -341,7 +369,7 @@ class Qttt:
             return blocks_to_collapse, marks_to_collapse
 
     class ttt:
-        EMPTY_BLOCK_VAL = -1
+        EMPTY_BLOCK_VAL = 0
 
         def __init__(self):
             self.board = np.ones(9, dtype=int) * Qttt.ttt.EMPTY_BLOCK_VAL
@@ -363,8 +391,9 @@ class Qttt:
             return self.has_won()
         '''
 
-        def flip_odd_and_even(self, flip_bit):
-            self.board = np.where(self.board < 0, self.board, self.board ^ flip_bit)
+        def add_bias_to_pieces(self, bias):
+            self.board = np.where(self.board == Qttt.ttt.EMPTY_BLOCK_VAL,
+                                  self.board, self.board + bias)
 
         def has_won(self):
             """

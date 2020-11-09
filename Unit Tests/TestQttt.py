@@ -77,10 +77,14 @@ def test_get_all_possible_collapse():
 
     # test to propagate to ttt
     qttt1.propagate_qttt_to_ttt()
-    assert ((qttt1.ttt.board == np.array([4, 1, 2, 3, -1, -1, -1, -1, -1])).all())
+    assert ((qttt1.ttt.board == np.array([4, 1, 2, 3, Qttt.ttt.EMPTY_BLOCK_VAL,
+                                          Qttt.ttt.EMPTY_BLOCK_VAL, Qttt.ttt.EMPTY_BLOCK_VAL,
+                                          Qttt.ttt.EMPTY_BLOCK_VAL, Qttt.ttt.EMPTY_BLOCK_VAL])).all())
 
     qttt2.propagate_qttt_to_ttt()
-    assert ((qttt2.ttt.board == np.array([1, 2, 3, 4, -1, -1, -1, -1, -1])).all())
+    assert ((qttt2.ttt.board == np.array([1, 2, 3, 4, Qttt.ttt.EMPTY_BLOCK_VAL,
+                                          Qttt.ttt.EMPTY_BLOCK_VAL, Qttt.ttt.EMPTY_BLOCK_VAL,
+                                          Qttt.ttt.EMPTY_BLOCK_VAL, Qttt.ttt.EMPTY_BLOCK_VAL])).all())
 
     '''
     take a look at special example
