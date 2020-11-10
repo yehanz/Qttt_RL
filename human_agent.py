@@ -27,7 +27,7 @@ class HumanAgent(object):
         else:
             print("O's turn:")
 
-    def act(self, free_block_ids, collapsed_qttts):
+    def act(self, free_block_ids, collapsed_qttts, mark=None):
         self.show_turn()
 
         if len(collapsed_qttts) > 1:
@@ -36,7 +36,7 @@ class HumanAgent(object):
             index = 0
 
         if index is None:
-            sys.exit()
+            return None, None
 
         collapsed_qttt = collapsed_qttts[index]
 
@@ -45,7 +45,7 @@ class HumanAgent(object):
 
         agent_move = self.put(free_block_ids[index])
         if agent_move is None:
-            sys.exit()
+            return None, None
         return collapsed_qttts[index], agent_move
 
 
@@ -97,6 +97,9 @@ def play():
 
             collapsed_qttt, agent_move = agent.act(free_block_ids, collapsed_qttts)
             
+            if collapsed_qttt is None:
+                sys.exit()
+
             state, mark, reward, done = env.step(collapsed_qttt, agent_move, mark)
 
             print('')
