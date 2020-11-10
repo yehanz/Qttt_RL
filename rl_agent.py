@@ -1,8 +1,11 @@
 from tqdm import tqdm
 from GameTree import GameTree
 from env import Env, after_action_state
+from human_agent import HumanAgent
 import random
 import json
+import sys
+import argparse
 
 gamma = 0.9
 
@@ -53,13 +56,18 @@ class TD_agent:
             Qttt      collapsed_qttt:
                 qttt object with collapsed state on which agent's action based on
         """
+
         e = random.random()
-        if e < self.epsilon * self.decay_rate:
+        if e < self.epsilon:
             collapsed_qttt, agent_move = self.random_action(free_qblock_id_lists, collapsed_qttts)
         else:
             collapsed_qttt, agent_move = self.greedy_action(free_qblock_id_lists, collapsed_qttts, mark)
+        
         return collapsed_qttt, agent_move
 
+
+    def decay_epsilon(self):
+        self.epsilon *= self.decay_rate
 
     def random_action(self, free_qblock_id_lists, collapsed_qttts):
         n = len(collapsed_qttts)
@@ -121,9 +129,9 @@ class ProgramDriver:
     def get_agent_by_mark(agents, mark):
         return agents[mark % 2]
 
-    def learn(self, max_episode):
-        self._learn(max_episode)
-
+    def learn(self, max_episode, save_as_file='TD_policy.dat'):
+        self._learn(max_episode, save_as_file)
+        
     def _learn(self, max_episode, save_as_file='TD_policy.dat'):
         env = Env()
         agents = [TD_agent(self.epsilon, self.alpha, self.decay_rate),
@@ -133,6 +141,8 @@ class ProgramDriver:
             # reset to the initial state, env keep a counter for current round
             # odd round->x, even round->o, because for each piece, it has a submark on it!
             env.reset()
+            for agent in agents:
+                agent.decay_epsilon()
 
             while True:
                 curr_qttt, mark = env.get_state()
@@ -153,6 +163,46 @@ class ProgramDriver:
 
         ProgramDriver.save_model(save_as_file, max_episode, self.epsilon, self.alpha, self.decay_rate)
 
+    def play_with_human(self, save_as_file='TD_human_policy.dat'):
+        ProgramDriver.load_model(save_as_file)
+        env = Env()
+        agents = [TD_agent(self.epsilon, self.alpha, self.decay_rate),
+                HumanAgent(1),]
+
+        while True:
+            env.reset()
+            td_agent = agents[0]
+            td_agent.decay_epsilon()
+            env.render()
+
+            while True:
+                curr_qttt, mark = env.get_state()
+
+                agent = ProgramDriver.get_agent_by_mark(agents, mark)
+
+                free_qblock_id_lists, collapsed_qttts = env.get_valid_moves()
+
+                collapsed_qttt, agent_move = agent.act(free_qblock_id_lists, collapsed_qttts, mark)
+                
+                if collapsed_qttt is None:
+                    ProgramDriver.save_model(save_as_file, 0, self.epsilon, self.alpha, self.decay_rate)
+                    print("Model saved.")
+                    sys.exit()
+
+                next_qttt, next_round, reward, done = env.step(collapsed_qttt, agent_move, mark)
+                
+                print('')
+                env.render()
+
+                td_agent.bellman_backup(curr_qttt, next_qttt, reward, mark)
+
+                if done:
+                    GameTree.set_state_value(next_qttt.get_state(), reward)
+                    next_qttt.show_result()
+                    break
+
+
+    # function save_model and load_model cited from https://github.com/haje01/gym-tictactoe
     @staticmethod
     def save_model(save_file, max_episode, epsilon, alpha, decay_rate):
         with open(save_file, 'wt') as f:
@@ -162,6 +212,7 @@ class ProgramDriver:
             # write state values
             f.write('{}\n'.format(json.dumps(info)))
             for state, value in GameTree.state_val.items():
+                # if value != 0:
                 vcnt = GameTree.get_state_cnt(state)
                 f.write('{}\t{:0.3f}\t{}\n'.format(state, value, vcnt))
 
@@ -180,7 +231,26 @@ class ProgramDriver:
 
 
 if __name__ == '__main__':
+    # argv: rl_agent.py auto|human -s save_file [-l load_file]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("mode", type=str, help="auto or human")
+    parser.add_argument("-s", "--save", type=str, help="file name of model saved")
+    parser.add_argument("-l", "--load", type=str, help="file name of model load")
+    
+    args = parser.parse_args()
+
+    if args.load:
+        ProgramDriver.load_model(args.load)
+
+    pd = ProgramDriver(epsilon=0.1, alpha=0.3, decay_rate=1.0)
+
+    if args.mode == 'auto':
+        pd.learn(10000, args.save)
+    elif args.mode == 'human':
+        pd.play_with_human(args.save)
+    else:
+        print("python rl_agent.py auto|human save_file load_file")
+
+
     # info = ProgramDriver.load_model('TD_policy.dat')
     # pd = ProgramDriver(epsilon=info['epsilon'], alpha=info['alpha'], decay_rate=info['decay_rate'])
-    pd = ProgramDriver(epsilon=0.1, alpha=0.3, decay_rate=1.0)
-    pd.learn(100000)
