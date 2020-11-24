@@ -93,7 +93,7 @@ def play():
         agents = [HumanAgent(1), HumanAgent(2)]
         while not done:
             agent = agent_by_mark(agents, mark)
-            free_block_ids, collapsed_qttts, _ = env.get_valid_moves()
+            free_block_ids, collapsed_qttts = env.get_valid_moves()
 
             collapsed_qttt, agent_move = agent.act(free_block_ids, collapsed_qttts)
             
