@@ -1,49 +1,58 @@
-from env import Qttt
 import numpy as np
+
+from env import Qttt
+
 
 # Test Qttt
 def test_step():
     qttt = Qttt()
-    qttt.step((1,0), 1)
-    qttt.step((1,0), 2)
-    assert(qttt.board[0].entangled_marks == [1, 2])
-    assert(qttt.board[0].entangled_blocks == [1, 1])
-    assert(qttt.board[1].entangled_marks == [1, 2])
-    assert(qttt.board[1].entangled_blocks == [0, 0])
+    qttt.step((1, 0), 1)
+    qttt.step((1, 0), 2)
+    assert (qttt.board[0].entangled_marks == [1, 2])
+    assert (qttt.board[0].entangled_blocks == [1, 1])
+
+    assert (qttt.board[1].entangled_marks == [1, 2])
+    assert (qttt.board[1].entangled_blocks == [0, 0])
+
+    for i in range(2, 9):
+        assert (qttt.board[i].entangled_marks == [])
+        assert (qttt.board[i].entangled_blocks == [])
+
 
 def test_has_cycle():
     # one circle with two element
     qttt = Qttt()
-    qttt.step((2,3), 1)
+    qttt.step((2, 3), 1)
 
-    assert(qttt.has_cycle((2,3), 1) == False)
-    qttt.step((2,3), 2)
-    assert(qttt.has_cycle((3,2), 2) == True)
+    assert (not qttt.has_cycle)
+    qttt.step((2, 3), 2)
+    assert qttt.has_cycle
 
     # one circle with four elements
     qttt2 = Qttt()
     qttt2.step((0, 1), 1)
-    assert(qttt2.has_cycle((0, 1), 1) == False)
+    assert (not qttt2.has_cycle)
     qttt2.step((1, 2), 2)
-    assert (qttt2.has_cycle((1, 2), 2) == False)
+    assert (not qttt2.has_cycle)
     qttt2.step((2, 3), 3)
-    assert (qttt2.has_cycle((2, 3), 3) == False)
+    assert (not qttt2.has_cycle)
     qttt2.step((0, 3), 4)
-    assert (qttt2.has_cycle((0, 3), 4) == True)
+    assert qttt2.has_cycle
 
     # test no cycle
     qttt = Qttt()
-    qttt.step((0,1), 1)
-    assert(qttt.has_cycle((0,1), 1) == False)
-    qttt.step((2,3), 2)
-    assert(qttt.has_cycle((2,3), 2) == False)
+    qttt.step((0, 1), 1)
+    assert (not qttt.has_cycle)
+    qttt.step((2, 3), 2)
+    assert (not qttt.has_cycle)
 
     # test no cycle
     qttt = Qttt()
-    qttt.step((2,4), 1)
-    assert(qttt.has_cycle((2,4), 1) == False)
-    qttt.step((1,4), 2)
-    assert(qttt.has_cycle((1,4), 2) == False)
+    qttt.step((2, 4), 1)
+    assert (not qttt.has_cycle)
+    qttt.step((1, 4), 2)
+    assert (not qttt.has_cycle)
+
 
 def test_get_all_possible_collapse():
     # one circle with four elements
@@ -55,25 +64,27 @@ def test_get_all_possible_collapse():
     qttt1, qttt2 = qttt.get_all_possible_collapse((0, 3), 4)
 
     # check qttt1 elements
-    expectation_marks = [4,1,2,3]
+    expectation_marks = [4, 1, 2, 3]
     for i in range(4):
-        assert(qttt1.board[i].mark == expectation_marks[i])
-        assert(qttt1.board[i].entangled_blocks == [])
-        assert(qttt1.board[i].entangled_marks == [])
+        assert (qttt1.board[i].entangled_blocks == [])
+        assert (qttt1.board[i].entangled_marks == [expectation_marks[i]])
 
     # check qttt2 elements
-    expectation_marks = [1,2,3,4]
+    expectation_marks = [1, 2, 3, 4]
     for i in range(4):
-        assert(qttt2.board[i].mark == expectation_marks[i])
-        assert(qttt2.board[i].entangled_blocks == [])
-        assert(qttt2.board[i].entangled_marks == [])
+        assert (qttt2.board[i].entangled_blocks == [])
+        assert (qttt2.board[i].entangled_marks == [expectation_marks[i]])
 
     # test to propagate to ttt
     qttt1.propagate_qttt_to_ttt()
-    assert((qttt1.ttt.board == np.array([4,1,2,3,0,0,0,0,0])).all())
+    assert ((qttt1.ttt.board == np.array([4, 1, 2, 3, Qttt.ttt.EMPTY_BLOCK_VAL,
+                                          Qttt.ttt.EMPTY_BLOCK_VAL, Qttt.ttt.EMPTY_BLOCK_VAL,
+                                          Qttt.ttt.EMPTY_BLOCK_VAL, Qttt.ttt.EMPTY_BLOCK_VAL])).all())
 
     qttt2.propagate_qttt_to_ttt()
-    assert((qttt2.ttt.board == np.array([1,2,3,4,0,0,0,0,0])).all())
+    assert ((qttt2.ttt.board == np.array([1, 2, 3, 4, Qttt.ttt.EMPTY_BLOCK_VAL,
+                                          Qttt.ttt.EMPTY_BLOCK_VAL, Qttt.ttt.EMPTY_BLOCK_VAL,
+                                          Qttt.ttt.EMPTY_BLOCK_VAL, Qttt.ttt.EMPTY_BLOCK_VAL])).all())
 
     '''
     take a look at special example
@@ -110,24 +121,22 @@ def test_get_all_possible_collapse():
     # check qttt1 elements
     expectation_marks = [3, 2, 9, 4, 1, 8, 5, 6, 7]
     for i in range(4):
-        assert(qttt1.board[i].mark == expectation_marks[i])
-        assert(qttt1.board[i].entangled_blocks == [])
-        assert(qttt1.board[i].entangled_marks == [])
+        assert (qttt1.board[i].entangled_blocks == [])
+        assert (qttt1.board[i].entangled_marks == [expectation_marks[i]])
 
     # check qttt2 elements
     expectation_marks = [3, 2, 1, 4, 9, 8, 5, 6, 7]
     for i in range(4):
-        assert(qttt2.board[i].mark == expectation_marks[i])
-        assert(qttt2.board[i].entangled_blocks == [])
-        assert(qttt2.board[i].entangled_marks == [])
+        assert (qttt2.board[i].entangled_blocks == [])
+        assert (qttt2.board[i].entangled_marks == [expectation_marks[i]])
 
     # test to propagate to ttt
     qttt1.propagate_qttt_to_ttt()
     # qttt1.ttt.visualize_board()
-    assert((qttt1.ttt.board == np.array([3, 2, 9, 4, 1, 8, 5, 6, 7])).all())
+    assert ((qttt1.ttt.board == np.array([3, 2, 9, 4, 1, 8, 5, 6, 7])).all())
 
     qttt2.propagate_qttt_to_ttt()
-    assert((qttt2.ttt.board == np.array([3, 2, 1, 4, 9, 8, 5, 6, 7])).all())
+    assert ((qttt2.ttt.board == np.array([3, 2, 1, 4, 9, 8, 5, 6, 7])).all())
 
 
 def test_get_free_QBlock_ids():
@@ -137,7 +146,7 @@ def test_get_free_QBlock_ids():
     qttt.step((1, 2), 2)
     qttt.step((2, 3), 3)
     qttt.step((0, 3), 4)
-    assert((qttt.get_free_QBlock_ids() == range(0, 9)).all())
+    assert ((qttt.get_free_QBlock_ids() == range(0, 9)).all())
     qttt1, qttt2 = qttt.get_all_possible_collapse((0, 3), 4)
     qttt1.propagate_qttt_to_ttt()
     assert ((qttt1.get_free_QBlock_ids() == range(4, 9)).all())

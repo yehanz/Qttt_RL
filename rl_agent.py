@@ -1,3 +1,4 @@
+  
 from tqdm import tqdm
 from GameTree import GameTree
 from env import Env, after_action_state
@@ -19,7 +20,6 @@ class TD_agent:
     def act(self, free_qblock_id_lists, collapsed_qttts, mark):
         """
         Choose what action to take based on given collapsed Qttt states
-
         :param list(list(int))  free_qblock_id_lists:
             each element list contains ids of free QBlock under
             a given collapsed_qttt
@@ -27,7 +27,6 @@ class TD_agent:
             possible qttt states after collapse, if a state already reaches
             terminal state, the corresponding free_QBlock_id would be None
         :param int              mark: mark used by the agent
-
         :return:
             tuple(int, int) agent_action:
                 pair of qblock id to place the spooky mark
@@ -40,7 +39,6 @@ class TD_agent:
     def epsilon_greedy_policy(self, free_qblock_id_lists, collapsed_qttts, mark):
         """
         Choose between random move(exploration) and best move we can come up with(exploitation)
-
         :param list(list(int))  free_qblock_id_lists:
             each element list contains ids of free QBlock under
             a given collapsed_qttt
@@ -48,7 +46,6 @@ class TD_agent:
             possible qttt states after collapse, if a state already reaches
             terminal state, the corresponding free_QBlock_id would be None
         :param int              mark: mark used by the agent
-
         :return:
             tuple(int, int) agent_action:
                 pair of qblock id to place the spooky mark
@@ -107,7 +104,6 @@ class TD_agent:
     def bellman_backup(self, qttt, next_qttt, reward, mark):
         """
         Bellman backup for TD learning
-
         :param Qttt state: current state of qttt
         :param Qttt next_state: next state after action is take
         :param int  reward: immediate reward for this round
