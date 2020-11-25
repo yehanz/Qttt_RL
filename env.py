@@ -1,6 +1,7 @@
-import numpy as np
 from copy import deepcopy
-from collections import  deque
+
+import numpy as np
+import torch
 
 # X is the first player
 REWARD = {
@@ -11,7 +12,7 @@ REWARD = {
     'YX_WIN_REWARD': 0.7,
     # both Y and X wins, but X wins earlier
     'XY_WIN_REWARD': -0.7,
-    'TIE_REWARD': 0.5,
+    'TIE_REWARD': 0.0,
 }
 
 
@@ -19,16 +20,31 @@ class Env:
     def __init__(self):
         self.qttt = Qttt()
         self.round_ctr = 1
+        self.player_id = 1
 
         self.collapsed_qttts = [Qttt()]
-        self.next_valid_moves = [[i for i in range(9)]]
+        self.next_valid_moves = [np.arange(9)]
+        self.collapse_choice = ()
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            if self.qttt != other.qttt or self.collapsed_qttts != other.collapsed_qttts or \
+                    self.collapse_choice != other.collapse_choice:
+                return False
+            return True
+        return False
+
+    @property
+    def current_player_id(self):
+        return self.player_id
 
     def reset(self):
         self.qttt = Qttt()
         self.round_ctr = 1
 
         self.collapsed_qttts = [Qttt()]
-        self.next_valid_moves = [[i for i in range(9)]]
+        self.next_valid_moves = [np.arange(9)]
+        self.collapse_choice = ()
         return self.qttt, self.round_ctr
 
     def get_state(self):
@@ -37,7 +53,6 @@ class Env:
         :return:
             Qttt: qttt object of current Env
             int mark: we use env.round_ctr as our mark for current round of play
-
         ATTENTION: we return reference instead of a copy of current state here, it
                 is supposed to be READ ONLY. The state of Env should only be modified
                 by env.step().
@@ -45,10 +60,9 @@ class Env:
 
         return self.qttt, self.round_ctr
 
-    def step(self, qttt, agent_move, mark):
+    def step(self, qttt, agent_move, mark=None):
         """
         Carry out actions taken by agents
-
         :param Qttt             collapsed_qttt: qttt object with collapsed state
                                                 an agent chooses
         :param tuple(int, int)  agent_move: pair of qblock ids to place spooky marks
@@ -59,40 +73,45 @@ class Env:
             int     reward: immediate reward for current action
             boolean done: if the game has reached the terminal state
         """
+        if not mark:
+            mark = self.round_ctr
+
+        # update states
         self.round_ctr += 1
+        self.player_id = self.player_id ^ 1
 
         self.qttt = qttt
+        self.qttt.step(agent_move, mark)
+
+        if self.qttt.has_cycle:
+            self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
+            self.collapse_choice = agent_move
+        else:
+            self.collapsed_qttts = [deepcopy(self.qttt)]
+            self.collapse_choice = ()
+
+        self.next_valid_moves = []
+        for qttt in self.collapsed_qttts:
+            self.next_valid_moves.append(None if qttt.has_won()[0] else qttt.get_free_QBlock_ids())
+
         done, winner = self.qttt.has_won()
         reward = REWARD[winner + '_REWARD']
         if done:
             # update reward here
             return self.qttt, self.round_ctr, reward, done
 
-        self.qttt.step(agent_move, mark)
-
-        if self.qttt.has_cycle(agent_move, mark):
-            self.collapsed_qttts = self.qttt.get_all_possible_collapse(agent_move, mark)
-
-        else:
-            self.collapsed_qttts = [deepcopy(self.qttt)]
-
-        self.next_valid_moves = []
-        for qttt in self.collapsed_qttts:
-            self.next_valid_moves.append(None if qttt.has_won()[0] else qttt.get_free_QBlock_ids())
-
         return self.qttt, self.round_ctr, reward, done
 
     def get_valid_moves(self):
         """
         Get all valid moves based on current action
-
         :return:
             list(list(int)) next_valid_moves: each sub list contains ids of
                 free QBlock under a given collapsed_qttt, where next_valid_moves[i]
                 corresponds to id of free QBlocks for collapsed_qttt[i]
             list(Qttt)      collapsed_qttt: possible states of Qttt.board after collapse
         """
-        return self.next_valid_moves, self.collapsed_qttts
+        return self.next_valid_moves, self.collapsed_qttts, self.collapse_choice
 
     def has_won(self):
         return self.qttt.has_won()
@@ -100,10 +119,27 @@ class Env:
     def render(self):
         self.qttt.visualize_board()
 
+
 class Qttt:
+
     def __init__(self):
         self.board = [Qttt.QBlock(i) for i in range(9)]
-        self.ttt = self.ttt()
+        self.ttt = Qttt.ttt()
+        self.has_cycle = False
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            for q1, q2 in zip(self.board, other.board):
+                if (q1.entangled_marks != q2.entangled_marks) or \
+                        (q1.entangled_blocks != q2.entangled_blocks):
+                    return False
+            return True
+        return False
+
+    def add_bias_to_pieces(self, bias):
+        for qblock in self.board:
+            qblock.add_bias_to_pieces(bias)
+        self.ttt.add_bias_to_pieces(bias)
 
     def get_state(self):
         """
@@ -112,74 +148,46 @@ class Qttt:
         """
         return self.to_hashable()
 
-    def has_cycle(self, agent_move, mark):
-        # bfs to find cycle
-        start_point_id, end_point_id = agent_move
-        visited = set([start_point_id])
-        q = deque([start_point_id])
-        while q:
-            cur_point_id = q.popleft()
-            cur_point = self.board[cur_point_id]
-            for i in range(len(cur_point.entangled_blocks)):
-                entangled_block = cur_point.entangled_blocks[i]
-                entangled_mark = cur_point.entangled_marks[i]
-                if entangled_block == end_point_id:
-                    if entangled_mark != mark:
-                        return True
-                    else:
-                        continue
-                if entangled_block in visited:
-                    continue
-                else:
-                    visited.add(entangled_block)
-                    q.append(entangled_block)
-        return False
+    def _has_cycle(self, agent_move):
+        return bool(self.board[agent_move[0]].entangled_marks and
+                    self.board[agent_move[1]].entangled_marks)
 
     def get_all_possible_collapse(self, last_move, last_mark):
         """
         Get all possible collapse based on current Qttt chess board state
         Only used if Qttt.has_cycle returns True.
-
         There should only be 2 possible collapse, a simple way to understand this is as follows:
             We constantly place marks on the Qttt board, until some round, we place a spooky marks M
             over a pair of QBlocks(b1,b2) and a entangled cycle forms, there is 2 way to collapse this
             cycle: M collapse at QBlock b1, or M collapse at QBlock b2
-
         Idea for implementation: BFS
             take a look at special example
             3   2       1,9
-
             4   1,2,3   8
                 4,5,6
                 7,8,9
-
             5   6       7
-
             We can see that QBlock 5 and 3 forms an entangled cycle, in this case
             last_move = (3,5), last_mark = 9
             We choose 9 to collapse either at QB 3 or QB 5
             This is the start point of BFS.
-
             If we choose mark 9 collapse at QBlock 5. It is also noticed that QBlock 5 has many other spooky
             marks, once this QBlock is collapsed, the rest of the spooky marks in the same block collapses
             automatically(like an avalanche, that's BFS, from the start point of the collapse we cause many
             other blocks to collapse as well.
-
             Finally, we get 2 possible collapsed Qttt state:
             3   2   9       3   2   1
-
             4   1   8   or  4   9   8
-
             5   6   7       5   6   7
-
         :param tuple(int, int) last_move: last move that forms the entangle cycle
         :param int last_mark: last mark used for last move
         :return:
             list(Qttt): list of Qttt objects after collapse.
         """
+
         def consequent_collapse(board, collapsed_block_id, last_mark):
             collapsed_block = board[collapsed_block_id]
-            if collapsed_block.mark != None:
+            if not collapsed_block.entangled_blocks and collapsed_block.entangled_marks:
                 return
             entangled_block_ids, entangled_marks = collapsed_block.collapse(last_mark)
             for i in range(len(entangled_block_ids)):
@@ -203,7 +211,6 @@ class Qttt:
     def step(self, loc_pair, mark):
         """
         Step func modify the Qttt chess board state
-
         :param Qttt collapsed_qttt: it specifies what collapsed Qttt
                 state that current action is based on
         :param tuple(int, int) loc_pair: each element in tuple represents the QBlock id
@@ -213,6 +220,10 @@ class Qttt:
         :return:
             self
         """
+        if loc_pair is None:
+            self.has_cycle = False
+            return
+        self.has_cycle = self._has_cycle(loc_pair)
         # put mark in pair locations
         loc1, loc2 = loc_pair
         self.board[loc1].place_mark(mark, loc2)
@@ -221,10 +232,10 @@ class Qttt:
     def visualize_board(self):
         # visualize the Qttt board
         for i in range(9):
-            if self.board[i].mark == None:
+            if not self.board[i].has_collapsed:
                 print("{:17s}|".format(" ".join([str(integer) for integer in self.board[i].entangled_marks])), end="")
             else:
-                print("{:16s}*|".format(str(self.board[i].mark)), end="")
+                print("{:16s}*|".format(str(self.board[i].collapsed_mark)), end="")
             if i % 3 == 2:
                 print("")
         print("")
@@ -232,27 +243,25 @@ class Qttt:
     def to_hashable(self):
         board = []
         for i in range(9):
-            block = ()
-            if self.board[i].mark == None:
+            if not self.board[i].has_collapsed:
                 block = tuple(self.board[i].entangled_marks)
                 board.append(block)
             else:
-                block = (self.board[i].mark, 0)
+                block = (self.board[i].collapsed_mark, 0)
                 board.append(block)
         return tuple(board)
-
 
     def propagate_qttt_to_ttt(self):
         """
         Update ttt state with Qttt state, where a block of ttt is occupied by some mark
         only if the corresponding QBlock has collapsed
-
         :return:
             None
         """
         # update ttt board
         for i in range(9):
-            self.ttt.board[i] = self.board[i].mark if self.board[i].mark else 0
+            self.ttt.board[i] = self.board[i].collapsed_mark \
+                if self.board[i].has_collapsed else self.ttt.board[i]
 
     def get_free_QBlock_ids(self):
         """
@@ -265,7 +274,6 @@ class Qttt:
     def has_won(self):
         # self.propagate_qttt_to_ttt()
         return self.ttt.has_won()
-
 
     def show_result(self):
         done, winner = self.has_won()
@@ -286,21 +294,37 @@ class Qttt:
         else:
             print(winner)
 
+    def to_tensor(self):
+        """
+        convert qttt to a 10*3*3 tensor
+        first channel represents collapsed block state, 0 means block hasn't collapsed
+            non-zero block represents piece that collapses at this location
+
+        last 9 channels:
+            for collapsed block, all channels are 0
+            otherwise for piece with num k presented at Qblock (i,j), then tensor(k,i,j)=1
+            else 0
+        :return:
+        """
+        tensor_repr = torch.zeros(9, 11)
+        for idx, qblock in enumerate(self.board):
+            tensor_repr[idx][0] = qblock.has_collapsed
+            if qblock.entangled_marks:
+                tensor_repr[idx][qblock.entangled_marks] = 1
+        return tensor_repr.t().reshape(11, 3, 3)
+
+
     class QBlock:
         def __init__(self, block_id):
             """
             Qttt chess board state representation
-
             If X put pieces at 3rd and 5th block, then for 3rd Qblock, add
             entangled block number and symbols that X uses during this round, which
             is just env.round_ctr
-
             entangled_blocks list(int): blocks that share the same spooky marks put in current block
             marks: marks that current block contains
-
             we can get the number of the other block for any spooky marks self.marks[i] put in current block
             with self.entangled_blocks[i]
-
             we use a compact representation to distinguish between spooky marks and collapsed marks:
             spooky marks: if self.marks[i] is a spooky mark, self.entangled_blocks[i] != self.block_id
             collapsed marks: if self.marks[i] is a collapsed mark, then we have
@@ -312,7 +336,17 @@ class Qttt:
             self.entangled_blocks = []
             self.entangled_marks = []
             self.block_id = block_id
-            self.mark = None
+
+        @property
+        def has_collapsed(self):
+            return bool(self.entangled_marks and not self.entangled_blocks)
+
+        @property
+        def collapsed_mark(self):
+            return self.entangled_marks[0] if self.has_collapsed else None
+
+        def add_bias_to_pieces(self, bias):
+            self.entangled_marks = [mark + bias for mark in self.entangled_marks]
 
         def place_mark(self, mark, entangle_block_id):
             self.entangled_marks.append(mark)
@@ -321,24 +355,24 @@ class Qttt:
         def collapse(self, mark):
             """
             Collapse current block.
-
             :param mark: mark to be the collapsed mark in current block
             :return: list of entangled block number to collapse and marks
             """
-            blocks_to_collapse = self.entangled_blocks[:]
-            marks_to_collapse = self.entangled_marks[:]
+            blocks_to_collapse = self.entangled_blocks
+            marks_to_collapse = self.entangled_marks
             # remove current mark
             current_mark_pos = marks_to_collapse.index(mark)
             blocks_to_collapse.pop(current_mark_pos)
             marks_to_collapse.pop(current_mark_pos)
             self.entangled_blocks = []
-            self.entangled_marks = []
-            self.mark = mark
+            self.entangled_marks = [mark]
             return blocks_to_collapse, marks_to_collapse
 
     class ttt:
+        EMPTY_BLOCK_VAL = 0
+
         def __init__(self):
-            self.board = np.zeros(9, dtype=int)
+            self.board = np.ones(9, dtype=int) * Qttt.ttt.EMPTY_BLOCK_VAL
 
         '''
         def step(self, loc, mark):
@@ -357,13 +391,16 @@ class Qttt:
             return self.has_won()
         '''
 
+        def add_bias_to_pieces(self, bias):
+            self.board = np.where(self.board == Qttt.ttt.EMPTY_BLOCK_VAL,
+                                  self.board, self.board + bias)
+
         def has_won(self):
             """
             Check if the game enters a terminal state.
-            TODO: I think when a Qttt reached a terminal state, all of its block should have
+            When a Qttt reached a terminal state, all of its block should have
             collapsed, so we are able to determine if it is a tie, a winner or 2 winners from
             the ttt state only.
-
             :param ttt: current ttt state of Qttt
             :return:
                 boolean done: if game has reached the terminal state
@@ -387,7 +424,7 @@ class Qttt:
                 max_y = 0
                 occupied_block_num = 0
                 for idx in range(len(moves)):
-                    if moves[idx] == 0:
+                    if moves[idx] == Qttt.ttt.EMPTY_BLOCK_VAL:
                         continue
                     occupied_block_num += 1
                     if moves[idx] % 2 == 1:
@@ -425,13 +462,12 @@ class Qttt:
             return done, winner
 
         def get_free_block_ids(self):
-            return np.where(self.board == 0)[0]
+            return np.where(self.board == Qttt.ttt.EMPTY_BLOCK_VAL)[0]
 
         def visualize_board(self):
             # visualize the ttt board
             for i in range(3):
                 print("{:2d}|{:2d}|{:2d}".format(*[self.board[k] for k in range(i * 3, i * 3 + 3)]))
-
 
 
 def after_action_state(collapsed_qttt, action, mark):
