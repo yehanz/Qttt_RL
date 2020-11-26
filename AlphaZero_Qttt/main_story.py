@@ -3,6 +3,9 @@ from copy import deepcopy
 from env import REWARD
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
 from AlphaZero_Qttt.Network import Network
+from AlphaZero_Qttt.MCTS import MCTS
+
+
 
 def learn_from_self_play(game_env: EnvForDeepRL, nnet:Network, config):
     """
@@ -55,9 +58,9 @@ def learn_from_self_play(game_env: EnvForDeepRL, nnet:Network, config):
 
 def run_one_episode(game_env: EnvForDeepRL, curr_net, config):
     # we can use only 1 tree here
-    monte_carlo_trees = [MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+    monte_carlo_trees = [MCTS(deepcopy(game_env).change_to_even_pieces_view(),
                               curr_net, config.exploration_level),
-                         MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+                         MCTS(deepcopy(game_env).change_to_even_pieces_view(),
                               curr_net, config.exploration_level), ]
     training_examples = []
 
@@ -66,6 +69,7 @@ def run_one_episode(game_env: EnvForDeepRL, curr_net, config):
         mc = monte_carlo_trees[game_env.current_player_id]
 
         # [state_from_even_piece_view, probabilistic_policy, 1/-1]
+        #What is the state? Do we need to update the state in the function .get_action_prob()?
         state, policy_given_state = mc.get_action_prob()
         action_code = game_env.pick_a_valid_move(policy_given_state)
 
