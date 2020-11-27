@@ -1,15 +1,11 @@
 from copy import deepcopy
-from env import REWARD
-from AlphaZero_Qttt.env_bridge import EnvForDeepRL
-from AlphaZero_Qttt.Network import Network
-from copy import deepcopy
 
 from AlphaZero_Qttt.Network import Network
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
 from env import REWARD
 
 
-def learn_from_self_play(game_env: EnvForDeepRL, nnet:Network, config):
+def learn_from_self_play(nnet: Network, config):
     """
     Main story for the deep RL agent
 
@@ -43,14 +39,14 @@ def learn_from_self_play(game_env: EnvForDeepRL, nnet:Network, config):
 
         # generate 50% new data with current nn
         while len(training_example) < config.training_dataset_limit:
-            training_example += run_one_episode(game_env, curr_net, config)
+            training_example += run_one_episode(curr_net, config)
 
         # training a new nn based on curr nn
         competitor_net = deepcopy(curr_net)
         competitor_net.train(training_example)
 
         # if competitor_net better than self.curr_net
-        new_wins, old_wins = battle(game_env, competitor_net, curr_net, config)
+        new_wins, old_wins = battle(competitor_net, curr_net, config)
         if new_wins / (new_wins + old_wins) > config.min_win_rate_network_update:
             # save current network
             save(competitor_net)
@@ -58,7 +54,8 @@ def learn_from_self_play(game_env: EnvForDeepRL, nnet:Network, config):
             curr_net = competitor_net
 
 
-def run_one_episode(game_env: EnvForDeepRL, curr_net, config):
+def run_one_episode(curr_net, config):
+    game_env = EnvForDeepRL()
     # we can use only 1 tree here
     monte_carlo_trees = [MTCS(deepcopy(game_env).change_to_even_pieces_view(),
                               curr_net, config.exploration_level),
@@ -70,38 +67,39 @@ def run_one_episode(game_env: EnvForDeepRL, curr_net, config):
         # get player's search tree
         mc = monte_carlo_trees[game_env.current_player_id]
 
-        # [state_from_even_piece_view, probabilistic_policy, 1/-1]
-        state, policy_given_state = mc.get_action_prob()
+        # [states_from_even_piece_view, probabilistic_policy, 1/-1]
+        states, policy_given_state = mc.get_action_prob()
         action_code = game_env.pick_a_valid_move(policy_given_state)
+
+        # register data
+        training_examples.append([states, policy_given_state,
+                                  game_env.current_player_id])
 
         # step action
         _, _, winner, done = game_env.act(action_code)
         for mct in monte_carlo_trees:
             mct.step(action_code)
 
-        # register data
-        training_examples.append([state, policy_given_state,
-                                  (-1) ** game_env.current_player_id])
-
         if done:
             reward = REWARD[winner + '_REWARD']
-            update_reward(training_examples, reward)
+            update_reward(training_examples, reward, game_env.current_player_id)
             break
 
     return training_examples
 
 
-def update_reward(training_examples, reward):
-    for example in training_examples:
-        example[-1] *= reward
+def update_reward(training_examples, reward, curr_player_id):
+    return ((x[0], x[1], reward * (-1) ** (curr_player_id != x[2])) for x in training_examples)
 
 
-def battle(game_env, competitor_net, curr_net, config):
+def battle(competitor_net, curr_net, config):
     """
         compete_rounds: rounds of games for old/new network competition
         max_round_of_simulation: MCTS related parameters, # of rounds of planning before yielding
                     the final action
     """
+    game_env = EnvForDeepRL()
+
     # we can use only 1 tree here
     competitor_mc = MTCS(deepcopy(game_env).change_to_even_pieces_view(),
                          competitor_net, config.exploration_level)
