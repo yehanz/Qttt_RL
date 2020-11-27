@@ -88,7 +88,7 @@ def run_one_episode(game_env: EnvForDeepRL, curr_net, config):
             update_reward(training_examples, reward)
             break
 
-        return training_examples
+    return training_examples
 
 
 def update_reward(training_examples, reward):
