@@ -1,23 +1,11 @@
 import numpy as np
+from copy import deepcopy
 from AlphaZero_Qttt.Network import Network
 from AlphaZero_Qttt.env_bridge import *
 import math
 
+EPS = 1e-8
 
-# class Node:
-#     def __init__(self, qttt, parent):
-#         self.parent = parent
-#         self.qttt = qttt
-#         self.prob = np.zeros(9*8*2)
-#         self.v = 0
-
-#         self.N = 0
-#         self.S = 0
-#         self.W = 0
-#         self.Q = 0
-    
-#     def update_param_from_nn(self, nnet):
-#         self.prob, self.v = nnet.predict()
 REWARD = {
     'NO_REWARD': 0.0,
     'Y_WIN_REWARD': 1.0,
@@ -28,16 +16,14 @@ REWARD = {
     'XY_WIN_REWARD': -0.7,
     'TIE_REWARD': 0.0,
 }
-'''
-        done, winner = self.qttt.has_won()
-        reward = REWARD[winner + '_REWARD']
-'''
+
 class MCTS:
-    def __init__(self, env, nn, sim_nums, cpuct):
+    def __init__(self, env, nn, sim_nums, cpuct, tree_id):
         self.env = env
         self.nn = nn
         self.sim_nums = sim_nums
         self.cpuct = cpuct
+        self.tree_id = tree_id
 
         self.Qsa = {}  # stores Q values for s,a (as defined in the paper)
         self.Nsa = {}  # stores #times edge s,a was visited
@@ -48,11 +34,8 @@ class MCTS:
         self.Vs = {}  # stores game.getValidMoves for board s
     
     def step(self, action_code):
-        # Although MCTS may have no node in this case, it does not affect the action of the environment
         self.env.act(action_code) 
 
-    def ucb(self):
-        return
 
     def get_action_prob(self, temp=1):
         """
@@ -63,13 +46,13 @@ class MCTS:
                    proportional to Nsa[(s,a)]**(1./temp)
         """
         for i in range(self.sim_nums):
-            self.search(self.env.qttt)
+            self.search(deepcopy(self.env.qttt))
 
         s = self.env.qttt.get_state()
 
         ''' what is in the next_valid_moves, we need to choose valid actions here'''
         
-        counts = [self.Nsa[(s, a)] if (s, a) in self.Nsa else 0 for a in self.env.next_valid_moves]
+        counts = [self.Nsa[(s, a)] if (s, a) in self.Nsa else 0 for a in self.env.get_valid_action_codes()]
 
         if temp == 0:
             bestAs = np.array(np.argwhere(counts == np.max(counts))).flatten()
@@ -114,17 +97,17 @@ class MCTS:
             self.Es[s] = (done, reward)
         if self.Es[s][0]:
             # terminal node
-            return self.Es[s][1]
+            return self.Es[s][1] if self.env.current_player_id == self.tree_id else -self.Es[s][1]
 
         if s not in self.Ps:
             # leaf node
             self.Ps[s], v = self.nn.predict(self.env)
             
             '''
-            we need to choose valid actions here
+            Need to check whether the probability vector returned by self.nn.predict() is masked or not
 
             '''
-            valids = self.env.next_valid_moves
+            valids = self.env.get_valid_action_codes()
 
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
@@ -135,12 +118,11 @@ class MCTS:
                 # All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
                 print("All valid moves were masked, doing a workaround.")
-                # self.Ps[s] = self.Ps[s] + valids
-                # self.Ps[s] /= np.sum(self.Ps[s])
+
 
             self.Vs[s] = valids # store valid moves given state s
             self.Ns[s] = 0
-            return v
+            return v if self.env.current_player_id == self.tree_id else -v
 
         # not leaf node
         valids = self.Vs[s]
@@ -152,16 +134,19 @@ class MCTS:
             if (s, a) in self.Qsa:
                 u = self.Qsa[(s, a)] + self.cpuct * self.Ps[s][a] * math.sqrt(self.Ns[s]) / (1 + self.Nsa[(s, a)])
             else:
-                u = self.cpuct * self.Ps[s][a] * math.sqrt(self.Ns[s])  # Q = 0 ?, supposed to be an EPS
+                u = self.cpuct * self.Ps[s][a] * math.sqrt(self.Ns[s] + EPS)  # Q = 0 ?, supposed to be an EPS
 
             if u > cur_best:
                 cur_best = u
                 best_act = a
 
-        '''a == action_code?'''
-        a = best_act
-        next_qttt, _, _, _ = self.env.act(a)
-        '''even piece of view?'''
+        action_code = best_act
+
+        #Do we need to deepcopy self.env here?
+        env_temp= deepcopy(self.env)
+        env_temp.change_to_even_pieces_view() 
+        next_qttt, _, _, _ = env_temp.act(action_code)
+        
         v = self.search(next_qttt)
 
         if (s, a) in self.Qsa:
@@ -173,6 +158,6 @@ class MCTS:
             self.Nsa[(s, a)] = 1
 
         self.Ns[s] += 1
-        return v
+        return v if self.env.current_player_id == self.tree_id else -v
 
 
