@@ -1,8 +1,13 @@
-import numpy as np
 from copy import deepcopy
 from env import REWARD
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
 from AlphaZero_Qttt.Network import Network
+from copy import deepcopy
+
+from AlphaZero_Qttt.Network import Network
+from AlphaZero_Qttt.env_bridge import EnvForDeepRL
+from env import REWARD
+
 
 def learn_from_self_play(game_env: EnvForDeepRL, nnet:Network, config):
     """
