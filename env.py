@@ -300,7 +300,7 @@ class Qttt:
         first channel represents collapsed block state, 0 means block hasn't collapsed
             non-zero block represents piece that collapses at this location
 
-        last 9 channels:
+        last 10 channels:
             for collapsed block, all channels are 0
             otherwise for piece with num k presented at Qblock (i,j), then tensor(k,i,j)=1
             else 0
