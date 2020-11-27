@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3eacdf25-33fc-4503-a884-0bceadcbe06e" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/AlphaZero_Qttt/Network.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlphaZero_Qttt/Network.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AlphaZero_Qttt/main_story.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlphaZero_Qttt/main_story.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/env.py" beforeDir="false" afterPath="$PROJECT_DIR$/env.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tt.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/tt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl_agent.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,73 +32,40 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/main_story.py">
+        <entry file="file://$PROJECT_DIR$/rl_agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="66">
-              <caret line="93" lean-forward="true" selection-start-line="93" selection-end-line="93" />
+            <state relative-caret-position="1204">
+              <caret line="102" column="42" selection-start-line="102" selection-start-column="16" selection-end-line="102" selection-end-column="42" />
               <folding>
-                <element signature="e#0#25#0" expanded="true" />
+                <element signature="e#0#21#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1999">
-              <caret line="205" column="37" lean-forward="true" selection-start-line="205" selection-start-column="37" selection-end-line="205" selection-end-column="37" />
-              <folding>
-                <element signature="e#71#84#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://D:/anaconda3/Lib/site-packages/torch/nn/functional.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1699">
-              <caret line="2217" selection-start-line="2217" selection-end-line="2217" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://D:/anaconda3/Lib/site-packages/torch/nn/modules/module.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="107">
-              <caret line="743" selection-start-line="743" selection-end-line="743" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="22">
-              <caret line="83" column="8" selection-start-line="83" selection-start-column="8" selection-end-line="83" selection-end-column="8" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/tt.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="16" selection-start-column="16" selection-end-column="16" />
-            </state>
-          </provider>
+        <entry file="file://$PROJECT_DIR$/GameTree.py">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/env.py">
+        <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/main_story.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-91">
-              <caret line="302" column="15" selection-start-line="302" selection-start-column="15" selection-end-line="302" selection-end-column="15" />
+            <state relative-caret-position="-475">
+              <caret line="50" lean-forward="true" selection-start-line="50" selection-end-line="50" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#3615#5456#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="330">
+              <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
             </state>
           </provider>
         </entry>
@@ -118,23 +85,7 @@
       <find>collapsed_qttts</find>
       <find>encode_action_space</find>
       <find>propa</find>
-      <find>game</find>
-      <find>0</find>
-      <find>board[i].en</find>
-      <find>.mark</find>
-      <find>self</find>
-      <find>self.</find>
-      <find>entangled_marks[0]</find>
-      <find>np.ones(9)</find>
-      <find>-1</find>
-      <find>all</find>
-      <find>game_env</find>
     </findStrings>
-    <replaceStrings>
-      <replace />
-      <replace>-1</replace>
-      <replace>Qttt.ttt.EMPTY_BLOCK_VAL</replace>
-    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -142,19 +93,12 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/MCTS.py" />
-        <option value="$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py" />
-        <option value="$PROJECT_DIR$/human_agent.py" />
         <option value="$PROJECT_DIR$/rl_agent.py" />
-        <option value="$PROJECT_DIR$/Unit Tests/TestQttt.py" />
-        <option value="$PROJECT_DIR$/Unit Tests/TestTtt.py" />
-        <option value="$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py" />
-        <option value="$PROJECT_DIR$/Unit Tests/TestEnvBridge.py" />
-        <option value="$PROJECT_DIR$/Unit Tests/TestEnv.py" />
-        <option value="$PROJECT_DIR$/AlphaZero_Qttt/main_story.py" />
+        <option value="$PROJECT_DIR$/MCTS.py" />
         <option value="$PROJECT_DIR$/test/tt.py" />
-        <option value="$PROJECT_DIR$/AlphaZero_Qttt/Network.py" />
+        <option value="$PROJECT_DIR$/AlphaZero_Qttt/main_story.py" />
         <option value="$PROJECT_DIR$/env.py" />
+        <option value="$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py" />
       </list>
     </option>
   </component>
@@ -189,11 +133,6 @@
               <item name="my_ttt" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="my_ttt" type="b2602c69:ProjectViewProjectNode" />
-              <item name="my_ttt" type="462c0819:PsiDirectoryNode" />
-              <item name="Unit Tests" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -203,10 +142,9 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../RL/alpha-zero-general-master" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -221,8 +159,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Network">
-    <configuration name="Network" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.tt">
+    <configuration name="MCTS" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="my_ttt" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -230,34 +168,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/AlphaZero_Qttt" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/AlphaZero_Qttt/Network.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="fragment" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="my_ttt" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="/fragment.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MCTS.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -288,45 +204,10 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for TestEnvBridge.test_valid_action_codes" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <module name="my_ttt" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Unit Tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;TestEnvBridge.test_valid_action_codes&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-      <method v="2" />
-    </configuration>
-    <configuration name="pytest for TestEnv.test_step" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <module name="my_ttt" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Unit Tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;TestEnv.test_step&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Network" />
         <item itemvalue="Python.tt" />
-        <item itemvalue="Python tests.pytest for TestEnvBridge.test_valid_action_codes" />
-        <item itemvalue="Python.fragment" />
-        <item itemvalue="Python tests.pytest for TestEnv.test_step" />
+        <item itemvalue="Python.MCTS" />
       </list>
     </recent_temporary>
   </component>
@@ -344,77 +225,35 @@
       <workItem from="1603736987740" duration="15992000" />
       <workItem from="1603903831821" duration="1392000" />
       <workItem from="1604108850582" duration="41000" />
-      <workItem from="1604365575165" duration="9391000" />
-      <workItem from="1604421587320" duration="1816000" />
-      <workItem from="1604510732924" duration="1623000" />
-      <workItem from="1604686895857" duration="16166000" />
-      <workItem from="1604791787333" duration="21335000" />
-      <workItem from="1604877491510" duration="13849000" />
-      <workItem from="1605588055780" duration="1183000" />
-      <workItem from="1606424612151" duration="1223000" />
-      <workItem from="1606445586255" duration="7938000" />
-      <workItem from="1606500500089" duration="5588000" />
-      <workItem from="1606509439804" duration="3750000" />
+      <workItem from="1604365575165" duration="8135000" />
     </task>
     <servers />
   </component>
-  <component name="TestHistory">
-    <history-entry file="pytest_for_TestEnvBridge_test_valid_action_codes - 2020.11.26 at 20h 57m 16s.xml">
-      <configuration name="pytest for TestEnvBridge.test_valid_action_codes" configurationId="tests" />
-    </history-entry>
-    <history-entry file="pytest_for_TestEnvBridge_test_valid_action_codes - 2020.11.26 at 20h 57m 35s.xml">
-      <configuration name="pytest for TestEnvBridge.test_valid_action_codes" configurationId="tests" />
-    </history-entry>
-    <history-entry file="pytest_for_TestEnvBridge_test_valid_action_codes - 2020.11.26 at 20h 58m 32s.xml">
-      <configuration name="pytest for TestEnvBridge.test_valid_action_codes" configurationId="tests" />
-    </history-entry>
-    <history-entry file="pytest_for_TestEnvBridge_test_valid_action_codes - 2020.11.26 at 20h 58m 57s.xml">
-      <configuration name="pytest for TestEnvBridge.test_valid_action_codes" configurationId="tests" />
-    </history-entry>
-    <history-entry file="pytest_for_TestEnvBridge_test_valid_action_codes - 2020.11.26 at 21h 05m 24s.xml">
-      <configuration name="pytest for TestEnvBridge.test_valid_action_codes" configurationId="tests" />
-    </history-entry>
-    <history-entry file="pytest_for_TestEnvBridge_test_valid_action_codes - 2020.11.26 at 21h 06m 02s.xml">
-      <configuration name="pytest for TestEnvBridge.test_valid_action_codes" configurationId="tests" />
-    </history-entry>
-    <history-entry file="pytest_for_TestEnvBridge_test_valid_action_codes - 2020.11.26 at 21h 06m 35s.xml">
-      <configuration name="pytest for TestEnvBridge.test_valid_action_codes" configurationId="tests" />
-    </history-entry>
-    <history-entry file="pytest_for_TestEnvBridge_test_valid_action_codes - 2020.11.26 at 21h 08m 08s.xml">
-      <configuration name="pytest for TestEnvBridge.test_valid_action_codes" configurationId="tests" />
-    </history-entry>
-    <history-entry file="pytest_for_TestEnvBridge_test_valid_action_codes - 2020.11.26 at 21h 08m 27s.xml">
-      <configuration name="pytest for TestEnvBridge.test_valid_action_codes" configurationId="tests" />
-    </history-entry>
-    <history-entry file="pytest_for_TestEnvBridge_test_valid_action_codes - 2020.11.26 at 21h 08m 38s.xml">
-      <configuration name="pytest for TestEnvBridge.test_valid_action_codes" configurationId="tests" />
-    </history-entry>
-  </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="103466000" />
+    <option name="totallyTimeSpent" value="27739000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.14362416" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.20201342" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="0" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="1" weight="0.35441175" />
+      <window_info anchor="bottom" id="Terminal" order="1" weight="0.35177305" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="3" />
-      <window_info anchor="bottom" id="Version Control" order="4" weight="0.32941177" />
-      <window_info anchor="bottom" id="Python Console" order="5" weight="0.328125" />
+      <window_info anchor="bottom" id="Version Control" order="4" />
+      <window_info anchor="bottom" id="Python Console" order="5" weight="0.32907802" />
       <window_info anchor="bottom" id="Message" order="6" />
       <window_info anchor="bottom" id="Find" order="7" weight="0.32954547" />
-      <window_info anchor="bottom" id="Run" order="8" weight="0.39117646" />
-      <window_info active="true" anchor="bottom" id="Debug" order="9" visible="true" weight="0.43892047" />
+      <window_info anchor="bottom" id="Run" order="8" weight="0.32954547" />
+      <window_info anchor="bottom" id="Debug" order="9" weight="0.39772728" />
       <window_info anchor="bottom" id="Cvs" order="10" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="11" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="12" />
       <window_info anchor="right" id="Database" order="0" />
-      <window_info anchor="right" id="SciView" order="1" weight="0.49597314" />
+      <window_info anchor="right" id="SciView" order="1" weight="0.49597856" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="2" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="3" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="4" weight="0.25" />
@@ -423,118 +262,31 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py</url>
-          <line>238</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py</url>
-          <line>135</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py</url>
-          <line>209</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py</url>
-          <line>118</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
-  <component name="debuggerHistoryManager">
-    <expressions id="evaluateCodeFragment">
-      <expression>
-        <expression-string>for i in range(lenght):
-    for j in range(i+1, lenght):
-        MOVE_TO_INDEX[free_block_ids[i]][free_block_ids[j]]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>for i in range(lenght):
-    for j in range(i, lenght):
-        free_block_ids[i]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>for i in range(lenght):
-    for j in range(i, lenght):
-        MOVE_TO_INDEX[free_block_ids[i]][free_block_ids[j]]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>[MOVE_TO_INDEX[free_block_ids[i]][free_block_ids[j]]
-                                      for i in range(lenght) for j in range(i, lenght)]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>bool(self.board[agent_move[0]].entangled_marks and \
-               self.board[agent_move[1]].entangled_marks)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-    </expressions>
-    <expressions id="evaluateExpression">
-      <expression>
-        <expression-string>env_bridge.get_valid_action_codes() - np.array([MOVE_TO_INDEX[i][j] for i in range(2, 9) for j in range(i+1, 9)])</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>env_bridge.get_valid_action_codes() ==             np.array([MOVE_TO_INDEX[i][j] for i in range(2, 9) for j in range(i+1, 9)])</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>np.array([MOVE_TO_INDEX[i][j] for i in range(2, 9) for j in range(i+1, 9)])</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>env_bridge.get_valid_action_codes()</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>np.array([i for _ in range(2) for i in range(2, 9)])</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>np.concatenate((valid_act_codes, l+36*idx))</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>l+36</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>l[0]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>l</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-    </expressions>
-  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/MCTS.py" />
+    <entry file="file://$PROJECT_DIR$/test/tt.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="154">
+          <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/GameTree.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/rl_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1204">
+          <caret line="102" column="42" selection-start-line="102" selection-start-column="16" selection-end-line="102" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$USER_HOME$/.PyCharm2018.3/system/python_stubs/2060878080/builtins.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="610">
@@ -549,152 +301,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/env.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2448">
+          <caret line="24" column="77" selection-start-line="24" selection-start-column="77" selection-end-line="24" selection-end-column="77" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#3320#4849#0" />
+            <element signature="e#5041#7769#0" />
+            <element signature="e#7687#8391#0" />
+            <element signature="e#8432#8634#0" />
+            <element signature="e#8681#9008#0" />
+            <element signature="e#9053#9230#0" />
+            <element signature="e#9263#9327#0" />
+            <element signature="e#9355#11481#0" />
+            <element signature="e#11506#15148#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
-          <caret line="15" selection-start-line="15" selection-end-line="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TD_policy.dat">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6512">
-          <caret line="148" column="19" lean-forward="true" selection-start-line="148" selection-start-column="19" selection-end-line="148" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/human_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="218">
-          <caret line="95" column="64" selection-start-line="95" selection-start-column="53" selection-end-line="95" selection-end-column="68" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/GameTree.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="488">
-          <caret line="41" column="8" selection-start-line="41" selection-start-column="8" selection-end-line="41" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/rl_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3014">
-          <caret line="142" column="36" selection-start-line="142" selection-start-column="36" selection-end-line="142" selection-end-column="36" />
-          <folding>
-            <element signature="e#0#21#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Unit Tests/TestTtt.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#67#945#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Unit Tests/TestQttt.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="63">
-          <caret line="56" column="37" selection-start-line="56" selection-start-column="37" selection-end-line="56" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#1310#3697#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnvBridge.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="616">
-          <caret line="28" selection-start-line="28" selection-end-line="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://D:/anaconda3/Lib/site-packages/_pytest/python.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2772">
-          <caret line="181" selection-start-line="181" selection-end-line="181" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnv.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="484">
-          <caret line="253" lean-forward="true" selection-start-line="253" selection-end-line="253" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/tt.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="16" selection-start-column="16" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharm2018.3/system/python_stubs/2060878080/numpy/random/mtrand.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-281">
-          <caret line="2308" column="4" selection-start-line="2308" selection-start-column="4" selection-end-line="2308" selection-end-column="4" />
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/main_story.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="66">
-          <caret line="93" lean-forward="true" selection-start-line="93" selection-end-line="93" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="83" column="8" selection-start-line="83" selection-start-column="8" selection-end-line="83" selection-end-column="8" />
+        <state relative-caret-position="-475">
+          <caret line="50" lean-forward="true" selection-start-line="50" selection-end-line="50" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#3615#5456#0" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://D:/anaconda3/Lib/site-packages/torch/nn/functional.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1699">
-          <caret line="2217" selection-start-line="2217" selection-end-line="2217" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://D:/anaconda3/Lib/site-packages/torch/nn/modules/module.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="107">
-          <caret line="743" selection-start-line="743" selection-end-line="743" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1999">
-          <caret line="205" column="37" lean-forward="true" selection-start-line="205" selection-start-column="37" selection-end-line="205" selection-end-column="37" />
-          <folding>
-            <element signature="e#71#84#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/env.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-91">
-          <caret line="302" column="15" selection-start-line="302" selection-start-column="15" selection-end-line="302" selection-end-column="15" />
         </state>
       </provider>
     </entry>

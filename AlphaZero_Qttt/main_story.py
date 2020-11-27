@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from AlphaZero_Qttt.MCTS import MCTS
 from AlphaZero_Qttt.Network import Network
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
 from env import REWARD
@@ -57,9 +58,9 @@ def learn_from_self_play(nnet: Network, config):
 def run_one_episode(curr_net, config):
     game_env = EnvForDeepRL()
     # we can use only 1 tree here
-    monte_carlo_trees = [MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+    monte_carlo_trees = [MCTS(deepcopy(game_env).change_to_even_pieces_view(),
                               curr_net, config.exploration_level),
-                         MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+                         MCTS(deepcopy(game_env).change_to_even_pieces_view(),
                               curr_net, config.exploration_level), ]
     training_examples = []
 
@@ -69,6 +70,7 @@ def run_one_episode(curr_net, config):
 
         # [states_from_even_piece_view, probabilistic_policy, 1/-1]
         states, policy_given_state = mc.get_action_prob()
+
         action_code = game_env.pick_a_valid_move(policy_given_state)
 
         # register data
@@ -101,9 +103,9 @@ def battle(competitor_net, curr_net, config):
     game_env = EnvForDeepRL()
 
     # we can use only 1 tree here
-    competitor_mc = MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+    competitor_mc = MCTS(deepcopy(game_env).change_to_even_pieces_view(),
                          competitor_net, config.exploration_level)
-    curr_mc = MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+    curr_mc = MCTS(deepcopy(game_env).change_to_even_pieces_view(),
                    curr_net, config.exploration_level)
     monte_carlo_trees = [competitor_mc, curr_mc]
 
