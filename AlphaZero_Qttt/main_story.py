@@ -102,9 +102,9 @@ def battle(game_env, competitor_net, curr_net, config):
                     the final action
     """
     # we can use only 1 tree here
-    competitor_mc = MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+    competitor_mc = MCTS(deepcopy(game_env).change_to_even_pieces_view(),
                          competitor_net, config.exploration_level)
-    curr_mc = MTCS(deepcopy(game_env).change_to_even_pieces_view(),
+    curr_mc = MCTS(deepcopy(game_env).change_to_even_pieces_view(),
                    curr_net, config.exploration_level)
     monte_carlo_trees = [competitor_mc, curr_mc]
 
