@@ -31,12 +31,12 @@ def learn_from_self_play(nnet: Network, config):
     training_example = []
 
     # for each iteration, we train a new nn and compete with the older one
-    for i in range(config.max_iteration):
+    for i in range(config.numMCTSSims):
 
         # for each round, keep 50% stale training data from last round
         if len(training_example) > config.training_dataset_limit:
             training_example = training_example[:-int(
-                config.upper_limit * (1 - config.fresh_data_percentage))]
+                config.training_dataset_limit * (1 - config.fresh_data_percentage))]
 
         # generate 50% new data with current nn
         while len(training_example) < config.training_dataset_limit:
@@ -48,9 +48,11 @@ def learn_from_self_play(nnet: Network, config):
 
         # if competitor_net better than self.curr_net
         new_wins, old_wins = battle(competitor_net, curr_net, config)
-        if new_wins / (new_wins + old_wins) > config.min_win_rate_network_update:
+        print('win rate: %.3f' % (new_wins / (new_wins + old_wins)))
+        if new_wins / (new_wins + old_wins) > config.updateThreshold:
+            print('-------------save the better network-----------------')
             # save current network
-            save(competitor_net)
+            competitor_net.save(competitor_net, config)
             # use new network to generate training data
             curr_net = competitor_net
 
@@ -58,10 +60,10 @@ def learn_from_self_play(nnet: Network, config):
 def run_one_episode(curr_net, config):
     game_env = EnvForDeepRL()
     # we can use only 1 tree here
-    monte_carlo_trees = [MCTS(deepcopy(game_env).change_to_even_pieces_view(),
-                              curr_net, config.exploration_level),
-                         MCTS(deepcopy(game_env).change_to_even_pieces_view(),
-                              curr_net, config.exploration_level), ]
+    monte_carlo_trees = [MCTS(deepcopy(game_env), curr_net,
+                              config.numMCTSSims, config.cpuct),
+                         MCTS(deepcopy(game_env), curr_net,
+                              config.numMCTSSims, config.cpuct), ]
     training_examples = []
 
     while True:
@@ -78,12 +80,11 @@ def run_one_episode(curr_net, config):
                                   game_env.current_player_id])
 
         # step action
-        _, _, winner, done = game_env.act(action_code)
+        _, _, reward, done = game_env.act(action_code)
         for mct in monte_carlo_trees:
             mct.step(action_code)
 
         if done:
-            reward = REWARD[winner + '_REWARD']
             update_reward(training_examples, reward, game_env.current_player_id)
             break
 
@@ -103,15 +104,15 @@ def battle(competitor_net, curr_net, config):
     game_env = EnvForDeepRL()
 
     # we can use only 1 tree here
-    competitor_mc = MCTS(deepcopy(game_env).change_to_even_pieces_view(),
-                         competitor_net, config.exploration_level)
-    curr_mc = MCTS(deepcopy(game_env).change_to_even_pieces_view(),
-                   curr_net, config.exploration_level)
+    competitor_mc = MCTS(deepcopy(game_env), competitor_net,
+                         config.numMCTSSims, config.cpuct)
+    curr_mc = MCTS(deepcopy(game_env), curr_net,
+                   config.numMCTSSims, config.cpuct)
     monte_carlo_trees = [competitor_mc, curr_mc]
 
     score_board = {competitor_mc: 0, curr_mc: 0}
 
-    for _ in range(config.compete_rounds):
+    for _ in range(config.roundsOfBattle):
         while True:
             mc = monte_carlo_trees[game_env.current_player_id]
 
@@ -120,12 +121,11 @@ def battle(competitor_net, curr_net, config):
             action_code = game_env.pick_a_valid_move(policy_given_state)
 
             # step action
-            _, _, winner, done = game_env.act(action_code)
+            _, _, reward, done = game_env.act(action_code)
             for mct in monte_carlo_trees:
                 mct.step(action_code)
 
             if done:
-                reward = REWARD[winner + '_REWARD']
                 if reward > 0:
                     score_board[monte_carlo_trees[game_env.current_player_id]] += 1
                 elif reward < 0:
@@ -135,7 +135,3 @@ def battle(competitor_net, curr_net, config):
                 break
 
         return score_board[competitor_mc], score_board[curr_mc]
-
-
-def save(competitor_net, *args):
-    pass

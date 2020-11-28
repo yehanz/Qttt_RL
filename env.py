@@ -20,7 +20,8 @@ class Env:
     def __init__(self):
         self.qttt = Qttt()
         self.round_ctr = 1
-        self.player_id = 1
+        # player id is either 0 or 1
+        self.player_id = 0
 
         self.collapsed_qttts = [Qttt()]
         self.next_valid_moves = [np.arange(9)]
@@ -149,6 +150,8 @@ class Qttt:
         return self.to_hashable()
 
     def _has_cycle(self, agent_move):
+        assert self.board[agent_move[0]].has_collapsed == False
+        assert self.board[agent_move[1]].has_collapsed == False
         return bool(self.board[agent_move[0]].entangled_marks and
                     self.board[agent_move[1]].entangled_marks)
 
@@ -199,11 +202,13 @@ class Qttt:
         consequent_collapse(possible_collapse1.board, choice1, last_mark)
         # always update corresponding ttt state
         possible_collapse1.propagate_qttt_to_ttt()
+        possible_collapse1.has_cycle = False
 
         possible_collapse2 = deepcopy(self)
         consequent_collapse(possible_collapse2.board, choice2, last_mark)
         # always update corresponding ttt state
         possible_collapse2.propagate_qttt_to_ttt()
+        possible_collapse2.has_cycle = False
 
         possible_collapse = [possible_collapse1, possible_collapse2]
         return possible_collapse
@@ -226,6 +231,7 @@ class Qttt:
         self.has_cycle = self._has_cycle(loc_pair)
         # put mark in pair locations
         loc1, loc2 = loc_pair
+
         self.board[loc1].place_mark(mark, loc2)
         self.board[loc2].place_mark(mark, loc1)
 
@@ -240,6 +246,7 @@ class Qttt:
                 print("")
         print("")
 
+    # !FIX: come up with a faster way: bytes([1,2,3]) might be faster
     def to_hashable(self):
         board = []
         for i in range(9):
@@ -312,7 +319,6 @@ class Qttt:
             if qblock.entangled_marks:
                 tensor_repr[idx][qblock.entangled_marks] = 1
         return tensor_repr.t().reshape(11, 3, 3)
-
 
     class QBlock:
         def __init__(self, block_id):
