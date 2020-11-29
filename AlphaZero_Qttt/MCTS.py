@@ -2,10 +2,9 @@ import math
 
 from AlphaZero_Qttt.env_bridge import *
 from env import REWARD
-
-EPS = 1e-8
 from collections import defaultdict
 
+EPS = 1e-8
 
 class MCTS:
     def __init__(self, env, nn, sim_nums, cpuct):
@@ -68,15 +67,15 @@ class MCTS:
             bestAs = np.array(np.argwhere(counts == np.max(counts))).flatten()
             bestA = np.random.choice(bestAs)
             probs = np.array([0] * len(counts))
-            probs[bestA] = 1
-            return self.env.collapsed_qttts, probs
+            probs[bestA] = 1.0
+            return deepcopy(self.env.collapsed_qttts), probs
 
         # init situation
         counts = counts ** (1. / temp)
         counts_sum = counts.sum()
         probs = counts / counts_sum
 
-        return self.env.collapsed_qttts, probs
+        return deepcopy(self.env.collapsed_qttts), probs
 
     def search(self, game_env: EnvForDeepRL):
         """
