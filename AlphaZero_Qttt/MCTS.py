@@ -30,7 +30,7 @@ class MCTS:
         self.Ps = {}  # stores initial policy (returned by neural net)
 
         self.Es = {}  # stores qttt.has_won() ended for board s
-        self.Vs = {}  # stores game.getValidMoves for board s
+        self.Vs = {}  # # store valid moves given state s
 
     def step(self, action_code):
         # always append act with change to even piece view
@@ -39,7 +39,7 @@ class MCTS:
 
     def get_action_prob(self, temp=1):
         """
-        This function performs sim_nums simulations of MCTS starting from
+        This function performs self.sim_nums simulations of MCTS starting from
         qttt.
         Returns:
             probs: a policy vector where the probability of the ith action is
@@ -51,7 +51,7 @@ class MCTS:
 
         s = self.env.qttt.get_state()
 
-        ''' what is in the next_valid_moves, we need to choose valid actions here'''
+        # get_valid_action_codes() will return the valid action code given the current environment
         counts = np.zeros(74)
         for action_code in self.env.get_valid_action_codes():
             counts[action_code] = self.Nsa[(s, action_code)]
@@ -63,8 +63,9 @@ class MCTS:
             probs[bestA] = 1
             return probs
 
-        # init situation
+        
         counts = counts ** (1. / temp)
+        # counts_sum is the total number that state s is visited
         counts_sum = counts.sum()
         assert counts_sum != 0
         probs = counts / counts_sum
@@ -110,10 +111,7 @@ class MCTS:
             # leaf node
             self.Ps[s], v = self.nn.predict(game_env)
 
-            '''
-            Need to check whether the probability vector returned by self.nn.predict() is masked or not
-
-            '''
+            # the valid action_codes given the current environment
             valids = game_env.get_valid_action_codes()
 
             sum_Ps_s = np.sum(self.Ps[s])
@@ -173,6 +171,7 @@ class MCTS:
         # In that case, one of the next valid move list is None
         v = self.search(game_env)
 
+        # Updating the Qsa, Nsa, and Ns
         if (s, a) in self.Qsa:
             self.Qsa[(s, a)] = (self.Nsa[(s, a)] * self.Qsa[(s, a)] + v) / (self.Nsa[(s, a)] + 1)
             self.Nsa[(s, a)] += 1
