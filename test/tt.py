@@ -1,6 +1,3 @@
-import torch
-from torch.distributions.dirichlet import Dirichlet
-
 if __name__ == '__main__':
-    x = Dirichlet(torch.tensor([0.5, 0.5]))
-    print(x.sample((5,)))
+    x = {'a':1,'b':3, None: 0}
+    print(x[None]+1)

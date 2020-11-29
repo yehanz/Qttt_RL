@@ -5,6 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AlphaZero_Qttt/Network.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlphaZero_Qttt/Network.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AlphaZero_Qttt/driver.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlphaZero_Qttt/driver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AlphaZero_Qttt/main_story.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlphaZero_Qttt/main_story.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Unit Tests/TestEnvBridge.py" beforeDir="false" afterPath="$PROJECT_DIR$/Unit Tests/TestEnvBridge.py" afterDir="false" />
@@ -18,34 +19,58 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/my_ttt$pytest_in_TestEnv_py.coverage" NAME="pytest in TestEnv.py Coverage Results" MODIFIED="1606523499583" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
+    <SUITE FILE_PATH="coverage/my_ttt$pytest_in_TestEnv_py.coverage" NAME="pytest in TestEnv.py Coverage Results" MODIFIED="1606622085496" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
+    <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestEnvBridge_test_all.coverage" NAME="pytest for TestEnvBridge.test_all Coverage Results" MODIFIED="1606625720353" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
     <SUITE FILE_PATH="coverage/my_ttt$rl_agent.coverage" NAME="rl_agent Coverage Results" MODIFIED="1604698634875" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestEnv_test_view_of_env.coverage" NAME="pytest for TestEnv.test_view_of_env Coverage Results" MODIFIED="1604882167086" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
     <SUITE FILE_PATH="coverage/my_ttt$fragment.coverage" NAME="fragment Coverage Results" MODIFIED="1606449008054" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestTtt_test_has_won.coverage" NAME="pytest for TestTtt.test_has_won Coverage Results" MODIFIED="1604896858864" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
+    <SUITE FILE_PATH="coverage/my_ttt$pytest_in_TestTtt_py.coverage" NAME="pytest in TestTtt.py Coverage Results" MODIFIED="1606622096527" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
+    <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestTtt_test_has_won.coverage" NAME="pytest for TestTtt.test_has_won Coverage Results" MODIFIED="1606622199733" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
     <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestQttt_test_get_free_QBlock_ids.coverage" NAME="pytest for TestQttt.test_get_free_QBlock_ids Coverage Results" MODIFIED="1604818013686" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
     <SUITE FILE_PATH="coverage/my_ttt$MCTS.coverage" NAME="MCTS Coverage Results" MODIFIED="1603683559699" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestQttt_test_step.coverage" NAME="pytest for TestQttt.test_step Coverage Results" MODIFIED="1604896708075" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
     <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestEnv_test_view_of_env2.coverage" NAME="pytest for TestEnv.test_view_of_env2 Coverage Results" MODIFIED="1606524504630" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
+    <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestQttt_test_step.coverage" NAME="pytest for TestQttt.test_step Coverage Results" MODIFIED="1606622091994" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
     <SUITE FILE_PATH="coverage/my_ttt$Network.coverage" NAME="Network Coverage Results" MODIFIED="1606616073320" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/AlphaZero_Qttt" />
     <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestEnv_test_step.coverage" NAME="pytest for TestEnv.test_step Coverage Results" MODIFIED="1606448901471" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
-    <SUITE FILE_PATH="coverage/my_ttt$tt.coverage" NAME="tt Coverage Results" MODIFIED="1606620543170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
+    <SUITE FILE_PATH="coverage/my_ttt$tt.coverage" NAME="tt Coverage Results" MODIFIED="1606686266686" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
     <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestEnvBridge_test_valid_action_codes.coverage" NAME="pytest for TestEnvBridge.test_valid_action_codes Coverage Results" MODIFIED="1606621965920" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
     <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestEnv_test_to_tensor.coverage" NAME="pytest for TestEnv.test_to_tensor Coverage Results" MODIFIED="1604896673510" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
-    <SUITE FILE_PATH="coverage/my_ttt$driver.coverage" NAME="driver Coverage Results" MODIFIED="1606597219594" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/AlphaZero_Qttt" />
+    <SUITE FILE_PATH="coverage/my_ttt$driver.coverage" NAME="driver Coverage Results" MODIFIED="1606684884106" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/AlphaZero_Qttt" />
     <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestEnv_test_view_of_env1.coverage" NAME="pytest for TestEnv.test_view_of_env1 Coverage Results" MODIFIED="1606524249180" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
+    <SUITE FILE_PATH="coverage/my_ttt$pytest_in_TestEnvBridge_py.coverage" NAME="pytest in TestEnvBridge.py Coverage Results" MODIFIED="1606625214061" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
     <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestQttt_test_has_cycle.coverage" NAME="pytest for TestQttt.test_has_cycle Coverage Results" MODIFIED="1604818006170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
     <SUITE FILE_PATH="coverage/my_ttt$pytest_for_TestQttt_test_get_all_possible_collapse.coverage" NAME="pytest for TestQttt.test_get_all_possible_collapse Coverage Results" MODIFIED="1604896813849" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Unit Tests" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/main_story.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2090">
-              <caret line="95" lean-forward="true" selection-start-line="95" selection-end-line="95" />
+            <state relative-caret-position="236">
+              <caret line="102" column="7" selection-start-line="102" selection-start-column="7" selection-end-line="102" selection-end-column="7" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/tt.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="66">
+              <caret line="3" column="25" selection-start-line="3" selection-start-column="25" selection-end-line="3" selection-end-column="25" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="352">
+              <caret line="25" column="29" lean-forward="true" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -54,8 +79,21 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/driver.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="134">
-              <caret line="12" selection-start-line="12" selection-end-line="12" />
+            <state relative-caret-position="-50">
+              <caret line="3" column="11" lean-forward="true" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2035">
+              <caret line="177" column="33" selection-start-line="177" selection-start-column="33" selection-end-line="177" selection-end-column="33" />
+              <folding>
+                <element signature="e#71#80#0" expanded="true" />
+                <element signature="e#301#1111#0" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -63,45 +101,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="29">
-              <caret line="46" column="8" selection-start-line="46" selection-start-column="8" selection-end-line="46" selection-end-column="8" />
-              <folding>
-                <element signature="e#0#25#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/env.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2804">
-              <caret line="295" column="50" selection-start-line="295" selection-start-column="50" selection-end-line="295" selection-end-column="50" />
-              <folding>
-                <element signature="e#0#25#0" expanded="true" />
-                <element signature="e#379#610#0" />
-                <element signature="e#649#920#0" />
-                <element signature="e#977#998#0" />
-                <element signature="e#1029#1237#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnvBridge.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="44">
-              <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnv.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4114">
-              <caret line="202" column="10" selection-start-line="202" selection-start-column="10" selection-end-line="202" selection-end-column="10" />
+            <state relative-caret-position="346">
+              <caret line="91" column="50" selection-start-line="91" selection-start-column="50" selection-end-line="91" selection-end-column="50" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -135,16 +136,21 @@
       <find>act</find>
       <find>change_to_even_pieces_view</find>
       <find>get_valid_action_codes</find>
-      <find>self.env</find>
-      <find>game_env</find>
       <find>assert</find>
       <find>to_tensor</find>
       <find>Tanh</find>
       <find>tanh</find>
       <find>ODD_WIN</find>
+      <find>Y</find>
+      <find>self.env</find>
+      <find>game_env</find>
+      <find>game_env.act(a)</find>
+      <find>self.Ps</find>
     </findStrings>
     <replaceStrings>
       <replace>EVEN_WIN</replace>
+      <replace>ODD</replace>
+      <replace>EVEN_</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -156,14 +162,15 @@
         <option value="$PROJECT_DIR$/rl_agent.py" />
         <option value="$PROJECT_DIR$/MCTS.py" />
         <option value="$PROJECT_DIR$/Unit Tests/TestEnv.py" />
-        <option value="$PROJECT_DIR$/AlphaZero_Qttt/driver.py" />
+        <option value="$PROJECT_DIR$/Unit Tests/TestTtt.py" />
+        <option value="$PROJECT_DIR$/Unit Tests/TestEnvBridge.py" />
         <option value="$PROJECT_DIR$/AlphaZero_Qttt/Network.py" />
+        <option value="$PROJECT_DIR$/AlphaZero_Qttt/driver.py" />
+        <option value="$PROJECT_DIR$/env.py" />
+        <option value="$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py" />
         <option value="$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py" />
         <option value="$PROJECT_DIR$/test/tt.py" />
         <option value="$PROJECT_DIR$/AlphaZero_Qttt/main_story.py" />
-        <option value="$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py" />
-        <option value="$PROJECT_DIR$/env.py" />
-        <option value="$PROJECT_DIR$/Unit Tests/TestEnvBridge.py" />
       </list>
     </option>
   </component>
@@ -181,6 +188,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -198,16 +206,10 @@
               <item name="my_ttt" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="my_ttt" type="b2602c69:ProjectViewProjectNode" />
-              <item name="my_ttt" type="462c0819:PsiDirectoryNode" />
-              <item name="Unit Tests" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -230,29 +232,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.pytest for TestEnvBridge.test_valid_action_codes">
-    <configuration name="Network" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="my_ttt" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/AlphaZero_Qttt" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/AlphaZero_Qttt/Network.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.tt">
     <configuration name="driver" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="my_ttt" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -297,7 +277,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for TestEnvBridge.test_valid_action_codes" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for TestEnvBridge.test_all" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="my_ttt" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -309,11 +289,11 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;TestEnvBridge.test_valid_action_codes&quot;" />
+      <option name="_new_target" value="&quot;TestEnvBridge.test_all&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for TestEnv.test_view_of_env2" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for TestTtt.test_has_won" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="my_ttt" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -325,17 +305,33 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;TestEnv.test_view_of_env2&quot;" />
+      <option name="_new_target" value="&quot;TestTtt.test_has_won&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in TestEnvBridge.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="my_ttt" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Unit Tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/Unit Tests/TestEnvBridge.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.pytest for TestEnvBridge.test_valid_action_codes" />
         <item itemvalue="Python.tt" />
-        <item itemvalue="Python.Network" />
         <item itemvalue="Python.driver" />
-        <item itemvalue="Python tests.pytest for TestEnv.test_view_of_env2" />
+        <item itemvalue="Python tests.pytest for TestEnvBridge.test_all" />
+        <item itemvalue="Python tests.pytest in TestEnvBridge.py" />
+        <item itemvalue="Python tests.pytest for TestTtt.test_has_won" />
       </list>
     </recent_temporary>
   </component>
@@ -355,51 +351,52 @@
       <workItem from="1604108850582" duration="41000" />
       <workItem from="1604365575165" duration="8135000" />
       <workItem from="1606521739701" duration="15904000" />
-      <workItem from="1606587937395" duration="18801000" />
+      <workItem from="1606587937395" duration="20939000" />
+      <workItem from="1606672477103" duration="13133000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="pytest_for_TestEnv_test_view_of_env1 - 2020.11.27 at 16h 35m 18s.xml">
-      <configuration name="pytest for TestEnv.test_view_of_env1" configurationId="tests" />
+    <history-entry file="pytest_for_TestEnvBridge_test_all - 2020.11.28 at 20h 48m 51s.xml">
+      <configuration name="pytest for TestEnvBridge.test_all" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_TestEnv_test_view_of_env1 - 2020.11.27 at 16h 35m 57s.xml">
-      <configuration name="pytest for TestEnv.test_view_of_env1" configurationId="tests" />
+    <history-entry file="pytest_for_TestEnvBridge_test_all - 2020.11.28 at 20h 49m 15s.xml">
+      <configuration name="pytest for TestEnvBridge.test_all" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_TestEnv_test_view_of_env1 - 2020.11.27 at 16h 37m 19s.xml">
-      <configuration name="pytest for TestEnv.test_view_of_env1" configurationId="tests" />
+    <history-entry file="pytest_for_TestEnvBridge_test_all - 2020.11.28 at 20h 49m 45s.xml">
+      <configuration name="pytest for TestEnvBridge.test_all" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_TestEnv_test_view_of_env1 - 2020.11.27 at 16h 38m 08s.xml">
-      <configuration name="pytest for TestEnv.test_view_of_env1" configurationId="tests" />
+    <history-entry file="pytest_for_TestEnvBridge_test_all - 2020.11.28 at 20h 50m 10s.xml">
+      <configuration name="pytest for TestEnvBridge.test_all" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_TestEnv_test_view_of_env1 - 2020.11.27 at 16h 39m 28s.xml">
-      <configuration name="pytest for TestEnv.test_view_of_env1" configurationId="tests" />
+    <history-entry file="pytest_for_TestEnvBridge_test_all - 2020.11.28 at 20h 50m 40s.xml">
+      <configuration name="pytest for TestEnvBridge.test_all" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_TestEnv_test_view_of_env1 - 2020.11.27 at 16h 40m 02s.xml">
-      <configuration name="pytest for TestEnv.test_view_of_env1" configurationId="tests" />
+    <history-entry file="pytest_for_TestEnvBridge_test_all - 2020.11.28 at 20h 50m 59s.xml">
+      <configuration name="pytest for TestEnvBridge.test_all" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_TestEnv_test_view_of_env1 - 2020.11.27 at 16h 40m 33s.xml">
-      <configuration name="pytest for TestEnv.test_view_of_env1" configurationId="tests" />
+    <history-entry file="pytest_for_TestEnvBridge_test_all - 2020.11.28 at 20h 51m 44s.xml">
+      <configuration name="pytest for TestEnvBridge.test_all" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_TestEnv_test_view_of_env1 - 2020.11.27 at 16h 44m 10s.xml">
-      <configuration name="pytest for TestEnv.test_view_of_env1" configurationId="tests" />
+    <history-entry file="pytest_for_TestEnvBridge_test_all - 2020.11.28 at 20h 53m 22s.xml">
+      <configuration name="pytest for TestEnvBridge.test_all" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_TestEnv_test_view_of_env2 - 2020.11.27 at 16h 45m 41s.xml">
-      <configuration name="pytest for TestEnv.test_view_of_env2" configurationId="tests" />
+    <history-entry file="pytest_for_TestEnvBridge_test_all - 2020.11.28 at 20h 53m 39s.xml">
+      <configuration name="pytest for TestEnvBridge.test_all" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_TestEnv_test_view_of_env2 - 2020.11.27 at 16h 48m 26s.xml">
-      <configuration name="pytest for TestEnv.test_view_of_env2" configurationId="tests" />
+    <history-entry file="pytest_for_TestEnvBridge_test_all - 2020.11.28 at 20h 55m 21s.xml">
+      <configuration name="pytest for TestEnvBridge.test_all" configurationId="tests" />
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="66430000" />
+    <option name="totallyTimeSpent" value="81701000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.147651" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.14966443" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="0" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="1" weight="0.35085228" />
@@ -409,13 +406,13 @@
       <window_info anchor="bottom" id="Python Console" order="5" weight="0.32907802" />
       <window_info anchor="bottom" id="Message" order="6" />
       <window_info anchor="bottom" id="Find" order="7" weight="0.32954547" />
-      <window_info active="true" anchor="bottom" id="Run" order="8" visible="true" weight="0.52272725" />
-      <window_info anchor="bottom" id="Debug" order="9" weight="0.33522728" />
+      <window_info anchor="bottom" id="Run" order="8" weight="0.2784091" />
+      <window_info anchor="bottom" id="Debug" order="9" weight="0.3380682" />
       <window_info anchor="bottom" id="Cvs" order="10" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="11" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="12" />
       <window_info anchor="right" id="Database" order="0" />
-      <window_info anchor="right" id="SciView" order="1" weight="0.49597856" />
+      <window_info anchor="right" id="SciView" order="1" weight="0.49597314" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="2" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="3" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="4" weight="0.25" />
@@ -433,9 +430,9 @@
           <option name="timeStamp" value="18" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py</url>
-          <line>80</line>
-          <option name="timeStamp" value="67" />
+          <url>file://$PROJECT_DIR$/AlphaZero_Qttt/main_story.py</url>
+          <line>48</line>
+          <option name="timeStamp" value="86" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -443,20 +440,59 @@
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
       <expression>
-        <expression-string>bool(self.board[agent_move[0]].entangled_marks and\
-self.board[agent_move[1]].entangled_marks)</expression-string>
+        <expression-string>game_env.has_won()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>self.board[agent_move[0]].entangled_marks and\
-self.board[agent_move[1]].entangled_marks</expression-string>
+        <expression-string>game_env.qttt.has_won()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>self.board[agent_move[0]].entangled_marks and
-                    self.board[agent_move[1]].entangled_marks</expression-string>
+        <expression-string>game_env.qttt.to_hashable()</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>mc.env.change_to_even_pieces_view()
+s = mc.env.qttt.get_state()
+mc.Nsa[(s,53)]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>mc.env.change_to_even_pieces_view()
+s = mc.env.qttt.get_state()
+mc.Nsa[(s,36)]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>mc.env.change_to_even_pieces_view()
+s = mc.env.qttt.get_state()
+mc.Nsa[(s,72)]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>mc.env.change_to_even_pieces_view()
+s = mc.env.qttt.get_state()
+mc.Nsa[(s,73)]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>mc.env.change_to_even_pieces_view()
+s = mc.env.qttt.get_state()
+mc.Vs[s]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>mc.env.change_to_even_pieces_view()
+s = mc.env.qttt.get_state()
+print(s)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
@@ -505,12 +541,32 @@ self.board[agent_move[1]].entangled_marks</expression-string>
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
-        <expression-string>counts.sum()</expression-string>
+        <expression-string>monte_carlo_trees[1].Vs[game_env.qttt.to_hashable()]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>self.env.get_valid_action_codes()</expression-string>
+        <expression-string>monte_carlo_trees[1].Vs[monte_carlo_trees[1].env.qttt.to_hashable()]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>monte_carlo_trees[1].Vs</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>monte_carlo_trees[1].Vs[monte_carlo_trees[1].env.qttt.get_state()]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>game_env.qttt.to_hashable()</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>game_env.env.qttt.to_hashable()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -525,27 +581,12 @@ self.board[agent_move[1]].entangled_marks</expression-string>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>mc.env.qttt.to_hashable()</expression-string>
+        <expression-string>[(x[0], x[1], reward * (-1) ** (game_env.current_player_id != x[2])) for x in training_examples]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>mc.qttt.to_hashable()</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>game_env.qttt.to_hashable()</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>mc.env.qttt</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>game_env.get_valid_action_codes()</expression-string>
+        <expression-string>[(x[0], x[1], reward * (-1) ** (curr_player_id != x[2])) for x in training_examples]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -553,9 +594,6 @@ self.board[agent_move[1]].entangled_marks</expression-string>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/MCTS.py" />
-    <entry file="file://$PROJECT_DIR$/GameTree.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/rl_agent.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1204">
@@ -570,13 +608,6 @@ self.board[agent_move[1]].entangled_marks</expression-string>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="114">
           <caret line="309" selection-start-line="309" selection-end-line="309" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://D:/anaconda3/Lib/copy.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="116">
-          <caret line="133" selection-start-line="133" selection-end-line="133" />
         </state>
       </provider>
     </entry>
@@ -601,16 +632,6 @@ self.board[agent_move[1]].entangled_marks</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/tt.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="4" column="40" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharm2018.3/system/python_stubs/2060878080/builtins.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="622">
@@ -618,86 +639,124 @@ self.board[agent_move[1]].entangled_marks</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py">
+    <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnv.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="154">
           <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2069">
-          <caret line="171" lean-forward="true" selection-start-line="171" selection-end-line="171" />
-          <folding>
-            <element signature="e#71#80#0" expanded="true" />
-            <element signature="e#331#1160#0" />
-            <element signature="e#742#1708#0" />
-            <element signature="e#3008#4147#0" />
-            <element signature="e#4113#5284#0" />
-            <element signature="e#3951#4559#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/driver.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="134">
-          <caret line="12" selection-start-line="12" selection-end-line="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/main_story.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2090">
-          <caret line="95" lean-forward="true" selection-start-line="95" selection-end-line="95" />
-          <folding>
             <element signature="e#0#25#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/env.py">
+    <entry file="file://$PROJECT_DIR$/Unit Tests/TestTtt.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2804">
-          <caret line="295" column="50" selection-start-line="295" selection-start-column="50" selection-end-line="295" selection-end-column="50" />
+        <state relative-caret-position="192">
+          <caret line="20" column="47" lean-forward="true" selection-start-line="20" selection-start-column="47" selection-end-line="20" selection-end-column="47" />
           <folding>
-            <element signature="e#0#25#0" expanded="true" />
-            <element signature="e#379#610#0" />
-            <element signature="e#649#920#0" />
-            <element signature="e#977#998#0" />
-            <element signature="e#1029#1237#0" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnv.py">
+    <entry file="file://$PROJECT_DIR$/Unit Tests/TestQttt.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4114">
-          <caret line="202" column="10" selection-start-line="202" selection-start-column="10" selection-end-line="202" selection-end-column="10" />
+        <state relative-caret-position="-2844">
+          <caret line="7" column="17" lean-forward="true" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
           <folding>
-            <element signature="e#0#25#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="29">
-          <caret line="46" column="8" selection-start-line="46" selection-start-column="8" selection-end-line="46" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnvBridge.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="44">
-          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
+        <state relative-caret-position="206">
+          <caret line="29" selection-start-line="29" selection-end-line="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/human_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2035">
+          <caret line="177" column="33" selection-start-line="177" selection-start-column="33" selection-end-line="177" selection-end-column="33" />
+          <folding>
+            <element signature="e#71#80#0" expanded="true" />
+            <element signature="e#301#1111#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/env.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="528">
+          <caret line="45" column="8" selection-start-line="45" selection-start-column="8" selection-end-line="45" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/anaconda3/Lib/copy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="116">
+          <caret line="133" selection-start-line="133" selection-end-line="133" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/MCTS.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="25" column="29" lean-forward="true" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/GameTree.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/driver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-50">
+          <caret line="3" column="11" lean-forward="true" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="346">
+          <caret line="91" column="50" selection-start-line="91" selection-start-column="50" selection-end-line="91" selection-end-column="50" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/tt.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="66">
+          <caret line="3" column="25" selection-start-line="3" selection-start-column="25" selection-end-line="3" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/main_story.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="236">
+          <caret line="102" column="7" selection-start-line="102" selection-start-column="7" selection-end-line="102" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

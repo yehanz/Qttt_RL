@@ -85,8 +85,11 @@ class EnvForDeepRL(Env):
         index_0_to_35 = prob_vector_index % 36
         return self.collapsed_qttts[collapsed_qttt_idx], INDEX_TO_MOVE[index_0_to_35]
 
-    def pick_a_valid_move(self, net_prob_vector):
-        action_code = np.random.choice(len(net_prob_vector), p=net_prob_vector)
+    def pick_a_valid_move(self, net_prob_vector, is_train=True):
+        if is_train:
+            action_code = np.random.choice(len(net_prob_vector), p=net_prob_vector)
+        else:
+            action_code = net_prob_vector.argmax()
         return action_code
 
     def act(self, action_code):

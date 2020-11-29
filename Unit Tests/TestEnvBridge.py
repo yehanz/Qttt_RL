@@ -26,3 +26,25 @@ def test_valid_action_codes():
     free_qblock_id_lists, collapsed_qttts, collapse_choice = env_bridge.get_valid_moves()
     assert (collapsed_qttts[0].ttt.board == np.array([1, 2, 4, 3, 0, 0, 0, 0, 0])).all()
     assert (collapsed_qttts[1].ttt.board == np.array([1, 2, 3, 4, 0, 0, 0, 0, 0])).all()
+
+
+def test_all():
+    env = EnvForDeepRL()
+    env.change_to_even_pieces_view()
+    val_act_cod = env.get_valid_action_codes()
+    for i in range(8):
+        env.act(i)
+    assert (env.get_valid_action_codes() == val_act_cod).all()
+    # print(env.qttt.to_tensor())
+    # print(env.qttt.to_hashable())
+    env.act(9)
+    # print(env.get_valid_action_codes())
+    # print(env.qttt.to_tensor())
+    # print(env.qttt.to_tensor())
+    # print(env.qttt.to_hashable())
+    env.act(72)
+    # print(env.qttt.to_hashable())
+    # print(env.qttt.to_tensor())
+    # print(env.qttt.to_hashable())
+    # print(env.qttt.to_tensor())
+

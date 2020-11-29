@@ -118,6 +118,8 @@ class MiniAlphaZeroNetWork(nn.Module):
             ResBlock(512, 256),
             ResBlock(256, 256),
             ResBlock(256, 256),
+            ResBlock(256, 256),
+            ResBlock(256, 256),
         )
         # 256*1*1
         self.policy_layer = PolicyHead(256)
@@ -195,8 +197,8 @@ class Network:
         self.epochs = 10
         self.batch_size = 512
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # self.net = MiniAlphaZeroNetWork()
-        self.net = BasicNetwork()
+        self.net = MiniAlphaZeroNetWork()
+        # self.net = BasicNetwork()
         self.net.to(self.device)
 
     def load_model(self, path_checkpoints, load_checkpoint_filename):
@@ -222,9 +224,9 @@ class Network:
 
             output = self.net(qttt1, qttt2)
 
-        action_prob = F.softmax(output[1], dim=1).squeeze(0).detach().cpu().numpy()[0]
-        state_value = output[1].squeeze(0).detach().cpu().numpy()[0]
-        return action_prob, state_value
+        action_prob = F.softmax(output[0], dim=1).squeeze(0).detach().cpu().numpy()
+        state_value = output[1].item()
+        return action_prob*game_env.valid_action_mask, state_value
 
     def train(self, training_example):
         """
@@ -273,11 +275,11 @@ class Network:
             running_loss /= len(train_loader)
             print('epoch: ', str(epoch + 1), 'Training Loss: ', running_loss)
 
-    def save(self, args):
+    def save(self, config):
         torch.save({
             'model_state_dict': self.net.state_dict(),
         },
-            args.path_checkpoints + args.save_checkpoint_filename)
+            config.path_checkpoints + config.save_checkpoint_filename)
 
     def loss_pi(self, targets, outputs):
         return -torch.sum(targets * outputs) / targets.size()[0]

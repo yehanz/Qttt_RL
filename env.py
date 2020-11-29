@@ -42,6 +42,7 @@ class Env:
     def reset(self):
         self.qttt = Qttt()
         self.round_ctr = 1
+        self.player_id = 0
 
         self.collapsed_qttts = [Qttt()]
         self.next_valid_moves = [np.arange(9)]
@@ -81,6 +82,7 @@ class Env:
         self.round_ctr += 1
         self.player_id = self.player_id ^ 1
 
+        assert not qttt.has_cycle
         self.qttt = qttt
         self.qttt.step(agent_move, mark)
 

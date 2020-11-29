@@ -1,10 +1,10 @@
 import math
-import torch
-from torch.distributions.dirichlet import Dirichlet
 
 from AlphaZero_Qttt.env_bridge import *
 from env import REWARD
+
 EPS = 1e-8
+from collections import defaultdict
 
 
 class MCTS:
@@ -15,22 +15,35 @@ class MCTS:
         self.sim_nums = sim_nums
         self.cpuct = cpuct
 
-        self.Qsa = {}  # stores Q values for s,a (as defined in the paper)
-        self.Nsa = {}  # stores #times edge s,a was visited
-        self.Ns = {}  # stores #times board s was visited
+        self.Qsa = defaultdict(lambda: 0)  # stores Q values for s,a (as defined in the paper)
+        self.Nsa = defaultdict(lambda: 0)  # stores #times edge s,a was visited
+        self.Ns = defaultdict(lambda: 0)  # stores #times board s was visited
         self.Ps = {}  # stores initial policy (returned by neural net)
 
         self.Es = {}  # stores qttt.has_won() ended for board s
         self.Vs = {}  # stores game.getValidMoves for board s
 
-    def step(self, action_code):
+    def reset_game_env(self):
+        self.env = EnvForDeepRL()
+        self.env.change_to_even_pieces_view()
+
+    def step(self, action_code, is_train=True):
         # always append act with change to even piece view
         self.env.act(action_code)
         self.env.change_to_even_pieces_view()
         # Add Dirichlet Noise to the new root node
         s = self.env.qttt.get_state()
-        noise_dim = len(self.Vs[s])
-        self.Ps[s][self.Vs[s]] += 0.25 * Dirichlet(torch.tensor([0.03] * noise_dim)).sample_n(noise_dim)
+        # During battle no noise is added in order to perform the strongest play
+        if s in self.Vs and is_train:
+            self.add_dirichlet_noise(self.Vs[s], self.Ps[s])
+
+    def add_dirichlet_noise(self, action_idxs, child_priors):
+        valid_child_priors = child_priors[action_idxs]  # select only legal moves entries in child_priors array
+        valid_child_priors = 0.75 * valid_child_priors + \
+                             0.25 * np.random.dirichlet(
+            np.array([0.1] * len(valid_child_priors), dtype=np.float32))
+        child_priors[action_idxs] = valid_child_priors
+        return child_priors
 
     def get_action_prob(self, temp=1):
         """
@@ -40,7 +53,8 @@ class MCTS:
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
         """
-        for i in range(self.sim_nums):
+        # for _ in tqdm(range(self.sim_nums)):
+        for _ in range(self.sim_nums):
             self.search(deepcopy(self.env))
 
         self.env.change_to_even_pieces_view()
@@ -86,6 +100,8 @@ class MCTS:
         done, winner = game_env.has_won()
         reward = REWARD[winner + '_REWARD']
 
+        ############## EXPAND and BP ##################
+
         if s not in self.Es:
             self.Es[s] = (done, reward)
         if self.Es[s][0]:
@@ -111,34 +127,36 @@ class MCTS:
             self.Ns[s] = 0
             return -v
 
-        # s not leaf node
+        ################ SELECT ####################
         valids = self.Vs[s]
         cur_best = -float('inf')
         best_act = -1
 
         # pick the action with the highest upper confidence bound
         for a in valids:
-            if (s, a) in self.Qsa:
-                u = self.Qsa[(s, a)] + self.cpuct * self.Ps[s][a] * \
-                    math.sqrt(self.Ns[s]) / (1 + self.Nsa[(s, a)])
-            else:
-                u = self.cpuct * self.Ps[s][a] * math.sqrt(self.Ns[s] + EPS)
+            # if an action is never tried before, default dict will return 0
+            # for Qsa, Nsa, Ns
+            # EPS is used here such that u is not all 0 if none of the action code
+            # of s has been tried before, thus u = k* Psa, and network evaluation
+            # can give us hint on the initial try.
+            u = self.Qsa[(s, a)] + self.cpuct * self.Ps[s][a] * \
+                math.sqrt(self.Ns[s] + EPS) / (1 + self.Nsa[(s, a)])
 
             if u > cur_best:
                 cur_best = u
                 best_act = a
 
         a = best_act
+        assert game_env.qttt.get_state() == s
         game_env.act(a)
         game_env.change_to_even_pieces_view()
+        # keep select-select-select until expand and bp
         v = self.search(game_env)
 
-        if (s, a) in self.Qsa:
-            self.Qsa[(s, a)] = (self.Nsa[(s, a)] * self.Qsa[(s, a)] + v) / (self.Nsa[(s, a)] + 1)
-            self.Nsa[(s, a)] += 1
-        else:
-            self.Qsa[(s, a)] = v
-            self.Nsa[(s, a)] = 1
+        ############### BP FROM Child Node #################
 
+        self.Qsa[(s, a)] = (self.Nsa[(s, a)] * self.Qsa[(s, a)] + v) / (self.Nsa[(s, a)] + 1)
+        self.Nsa[(s, a)] += 1
+        # Ns is the total count of trying child nodes
         self.Ns[s] += 1
         return -v
