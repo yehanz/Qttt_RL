@@ -1,5 +1,6 @@
-import numpy as np
+import torch
+from torch.distributions.dirichlet import Dirichlet
 
 if __name__ == '__main__':
-    x = [1,2,3]
-    print(x.extend([4]))
+    x = Dirichlet(torch.tensor([0.5, 0.5]))
+    print(x.sample((5,)))

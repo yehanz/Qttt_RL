@@ -6,12 +6,12 @@ import torch
 # X is the first player
 REWARD = {
     'NO_REWARD': 0.0,
-    'Y_WIN_REWARD': 1.0,
-    'X_WIN_REWARD': -1.0,
+    'EVEN_WIN_REWARD': 1.0,
+    'ODD_WIN_REWARD': -1.0,
     # both Y and X wins, but Y wins earlier
-    'YX_WIN_REWARD': 0.7,
+    'EVEN_ODD_WIN_REWARD': 0.7,
     # both Y and X wins, but X wins earlier
-    'XY_WIN_REWARD': -0.7,
+    'ODD_EVEN_WIN_REWARD': -0.7,
     'TIE_REWARD': 0.0,
 }
 
@@ -97,9 +97,6 @@ class Env:
 
         done, winner = self.qttt.has_won()
         reward = REWARD[winner + '_REWARD']
-        if done:
-            # update reward here
-            return self.qttt, self.round_ctr, reward, done
 
         return self.qttt, self.round_ctr, reward, done
 
@@ -150,8 +147,8 @@ class Qttt:
         return self.to_hashable()
 
     def _has_cycle(self, agent_move):
-        assert self.board[agent_move[0]].has_collapsed == False
-        assert self.board[agent_move[1]].has_collapsed == False
+        assert not self.board[agent_move[0]].has_collapsed
+        assert not self.board[agent_move[1]].has_collapsed
         return bool(self.board[agent_move[0]].entangled_marks and
                     self.board[agent_move[1]].entangled_marks)
 
@@ -200,13 +197,13 @@ class Qttt:
 
         possible_collapse1 = deepcopy(self)
         consequent_collapse(possible_collapse1.board, choice1, last_mark)
-        # always update corresponding ttt state
+        # always update corresponding ttt state and has cycle flag
         possible_collapse1.propagate_qttt_to_ttt()
         possible_collapse1.has_cycle = False
 
         possible_collapse2 = deepcopy(self)
         consequent_collapse(possible_collapse2.board, choice2, last_mark)
-        # always update corresponding ttt state
+        # always update corresponding ttt state and has cycle flag
         possible_collapse2.propagate_qttt_to_ttt()
         possible_collapse2.has_cycle = False
 
@@ -288,14 +285,14 @@ class Qttt:
             print("Game does not end")
             return
         print("Game ends.")
-        if winner == "X_WIN":
-            print("X wins!")
-        elif winner == "Y_WIN":
-            print("Y wins!")
-        elif winner == "XY_WIN":
-            print("Both X and Y win, but X wins earlier!")
-        elif winner == "YX_WIN":
-            print("Both X and Y win, but Y wins earlier!")
+        if winner == "ODD_WIN":
+            print("ODD wins!")
+        elif winner == "EVEN_WIN":
+            print("EVEN wins!")
+        elif winner == "ODD_EVEN_WIN":
+            print("Both ODD and EVEN win, but ODD wins earlier!")
+        elif winner == "EVEN_ODD_WIN":
+            print("Both ODD and EVEN win, but EVEN wins earlier!")
         elif winner == "TIE":
             print("Tie!")
         else:
@@ -445,17 +442,17 @@ class Qttt:
                         disdiag += (moves[idx] % 2) * 2 - 1
                     if i == j:
                         diag += (moves[idx] % 2) * 2 - 1
-                X_win = (3 in rows) or (3 in cols) or diag == 3 or disdiag == 3
-                Y_win = (-3 in rows) or (-3 in cols) or diag == -3 or disdiag == -3
-                if X_win and Y_win:
+                odd_win = (3 in rows) or (3 in cols) or diag == 3 or disdiag == 3
+                even_win = (-3 in rows) or (-3 in cols) or diag == -3 or disdiag == -3
+                if odd_win and even_win:
                     if max_x < max_y:
-                        winner = 'XY_WIN'
+                        winner = 'ODD_EVEN_WIN'
                     else:
-                        winner = 'YX_WIN'
-                elif X_win:
-                    winner = 'X_WIN'
-                elif Y_win:
-                    winner = 'Y_WIN'
+                        winner = 'EVEN_ODD_WIN'
+                elif odd_win:
+                    winner = 'ODD_WIN'
+                elif even_win:
+                    winner = 'EVEN_WIN'
                 else:
                     if occupied_block_num >= 8:
                         winner = "TIE"

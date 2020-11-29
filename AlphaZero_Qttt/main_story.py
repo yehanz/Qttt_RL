@@ -3,7 +3,6 @@ from copy import deepcopy
 from AlphaZero_Qttt.MCTS import MCTS
 from AlphaZero_Qttt.Network import Network
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
-from env import REWARD
 
 
 def learn_from_self_play(nnet: Network, config):
@@ -116,8 +115,8 @@ def battle(competitor_net, curr_net, config):
         while True:
             mc = monte_carlo_trees[game_env.current_player_id]
 
-            # [state_from_even_piece_view, probabilistic_policy, None]
-            state, policy_given_state = mc.get_action_prob()
+            # set temperature to 0 to get the strongest possible move
+            _, policy_given_state = mc.get_action_prob(temp=0)
             action_code = game_env.pick_a_valid_move(policy_given_state)
 
             # step action
