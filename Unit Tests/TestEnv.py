@@ -74,37 +74,45 @@ def test_step():
     assert (params[2] == -1)
     assert (params[3])
 
-
+# in normal view, we have (r+p) % 2 = 1
+# in even piece view, we have (r+p) % 2 = 0
 def test_view_of_env1():
+    # r 1 p 0
     s_env = EnvForDeepRL()
+    # r 2 p 1
     _ = s_env.step(Qttt(), (0, 1))[0]
+    # r 3 p 0
     _ = s_env.step(s_env.collapsed_qttts[0], (0, 1))[0]
 
     # change when it has already been normal view
     before_view_change = deepcopy(s_env)
     s_env.change_to_normal_view()
+    # r 3 p 0
     assert before_view_change == s_env
 
     # odd piece round change to even view, everything except player id +1
+    # r 4 p 0
     s_env.change_to_even_pieces_view()
     _, collapsed_qttts, _ = s_env.get_valid_moves()
     assert s_env.round_ctr == 4
-    assert s_env.current_player_id == 1
+    assert s_env.current_player_id == 0
     assert (collapsed_qttts[1].ttt.board == np.array([2, 3, 0, 0, 0, 0, 0, 0, 0])).all()
 
     # in converted even piece view, we continue to play
+    # r 5 p 1
     _ = s_env.step(s_env.collapsed_qttts[1], (3, 4))[0]
     assert s_env.round_ctr == 5
-    assert s_env.current_player_id == 0
+    assert s_env.current_player_id == 1
     assert (s_env.collapsed_qttts[0].ttt.board == np.array([2, 3, 0, 0, 0, 0, 0, 0, 0])).all()
     assert s_env.collapsed_qttts[0].board[3].entangled_blocks == [4]
     assert s_env.collapsed_qttts[0].board[3].entangled_marks == [4]
 
     # in odd piece round of converted view env, it will back to normal view, even piece round
+    # r 4 p 1
     s_env.change_to_normal_view()
     before_view_change = deepcopy(s_env)
     assert s_env.round_ctr == 4
-    assert s_env.current_player_id == 0
+    assert s_env.current_player_id == 1
     assert (s_env.qttt.ttt.board == np.array([1, 2, 0, 0, 0, 0, 0, 0, 0])).all()
     assert s_env.qttt.board[3].entangled_blocks == [4]
     assert s_env.qttt.board[3].entangled_marks == [3]
@@ -113,18 +121,27 @@ def test_view_of_env1():
 
 
 def test_view_of_env2():
+    # r 1 p 0
     s_env = EnvForDeepRL()
+    # r 2 p 1
     s_env.step(Qttt(), (0, 4))
+    # r 3 p 0
     s_env.step(s_env.get_valid_moves()[1][0], (1, 4))
+    # r 4 p 1
     s_env.step(s_env.get_valid_moves()[1][0], (2, 4))
+    # r 5 p 0
     s_env.step(s_env.get_valid_moves()[1][0], (3, 4))
+    # r 6 p 1
     s_env.step(s_env.get_valid_moves()[1][0], (5, 4))
+    # r 7 p 0
     s_env.step(s_env.get_valid_moves()[1][0], (6, 4))
+    # r 8 p 1
     s_env.step(s_env.get_valid_moves()[1][0], (7, 4))
 
-    assert s_env.player_id == 0
+    assert s_env.player_id == 1
     assert s_env.round_ctr == 8
     before_view_change = deepcopy(s_env)
+    # r 8 p 1
     s_env.change_to_even_pieces_view()
 
     # during even piece round nothing should change
@@ -133,13 +150,15 @@ def test_view_of_env2():
     assert before_view_change.qttt == s_env.qttt
     assert before_view_change.collapse_choice == s_env.collapse_choice
 
+    # r 9 p 0
     _ = s_env.step(s_env.get_valid_moves()[1][0], (8, 4))[0]
-    assert s_env.player_id == 1
+    assert s_env.player_id == 0
     assert s_env.round_ctr == 9
     # round for odd piece
+    # r 10 p 0
     s_env.change_to_even_pieces_view()
 
-    assert s_env.player_id == 1
+    assert s_env.player_id == 0
     assert s_env.round_ctr == 10
     _, collapsed_qttts, _ = s_env.get_valid_moves()
     for i in range(3):
@@ -152,9 +171,9 @@ def test_view_of_env2():
     assert collapsed_qttts[0].board[4].entangled_blocks == [0, 1, 2, 3, 5, 6, 7, 8]
     assert collapsed_qttts[0].board[4].entangled_marks == [2, 3, 4, 5, 6, 7, 8, 9]
     assert (collapsed_qttts[0].ttt.board == np.ones(9) * Qttt.ttt.EMPTY_BLOCK_VAL).all()
-
+    # r 9 p 0
     s_env.change_to_normal_view()
-    assert s_env.player_id == 1
+    assert s_env.player_id == 0
     assert s_env.round_ctr == 9
     _, collapsed_qttts, _ = s_env.get_valid_moves()
     for i in range(3):
@@ -168,6 +187,7 @@ def test_view_of_env2():
     assert collapsed_qttts[0].board[4].entangled_marks == [1, 2, 3, 4, 5, 6, 7, 8]
     assert (collapsed_qttts[0].ttt.board == np.ones(9) * Qttt.ttt.EMPTY_BLOCK_VAL).all()
 
+    # r 10 p 1
     s_env.step(s_env.get_valid_moves()[1][0], [0, 4])
     _, collapsed_qttts, _ = s_env.get_valid_moves()
     for i in range(3):
@@ -180,6 +200,7 @@ def test_view_of_env2():
     assert collapsed_qttts[1].board[4].entangled_blocks == []
     assert (collapsed_qttts[1].ttt.board == np.array([1, 2, 3, 4, 9, 5, 6, 7, 8])).all()
 
+    # r 10 p 1
     s_env.change_to_even_pieces_view()
     _, collapsed_qttts, _ = s_env.get_valid_moves()
     for i in range(3):

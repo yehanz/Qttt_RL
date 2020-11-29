@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 
 from env import Env
@@ -15,14 +17,13 @@ INDEX_TO_MOVE = [
 
 MOVE_TO_INDEX = [
     [-1, 0, 1, 2, 3, 4, 5, 6, 7],
-    [-1, 8, 9, 10, 11, 12, 13, 14],
-    [-1, 15, 16, 17, 18, 19, 20],
-    [-1, 21, 22, 23, 24, 25],
-    [-1, 26, 27, 28, 29],
-    [-1, 30, 31, 32],
-    [-1, 33, 34],
-    [-1, 35],
-    [-1]
+    [-1, -1, 8, 9, 10, 11, 12, 13, 14],
+    [-1, -1, -1, 15, 16, 17, 18, 19, 20],
+    [-1, -1, -1, -1, 21, 22, 23, 24, 25],
+    [-1, -1, -1, -1, -1, 26, 27, 28, 29],
+    [-1, -1, -1, -1, -1, -1, 30, 31, 32],
+    [-1, -1, -1, -1, -1, -1, -1, 33, 34],
+    [-1, -1, -1, -1, -1, -1, -1, -1, 35],
 ]
 
 
@@ -30,23 +31,30 @@ class EnvForDeepRL(Env):
 
     def __init__(self):
         super(EnvForDeepRL, self).__init__()
+        self._dulplicate_collapsed_qttts_and_valid_moves()
+
+    def _dulplicate_collapsed_qttts_and_valid_moves(self):
+        # must use deep copy!
+        self.collapsed_qttts.append(deepcopy(self.collapsed_qttts[0]))
+        self.next_valid_moves.append(deepcopy(self.next_valid_moves[0]))
 
     @property
     def valid_action_mask(self):
-        def valid_moves_to_mask(free_block_ids):
-            mask = np.zeros(36)
-            lenght = len(free_block_ids)
-            for i in range(lenght):
-                for j in range(i, lenght):
-                    mask[MOVE_TO_INDEX[i][j]] = 1
-
-        mask = np.zeros([])
-        for free_blocks in self.next_valid_moves:
-            mask = np.concatenate((mask, valid_moves_to_mask(free_blocks)))
-
-        if len(self.next_valid_moves) == 1:
-            mask = np.concatenate((mask, mask))
+        mask = np.zeros([74])
+        mask[self.get_valid_action_codes()] = 1
         return mask
+
+    def get_valid_action_codes(self):
+        act_codes = []
+        for idx, free_block_ids in enumerate(self.next_valid_moves):
+            if free_block_ids is None:
+                act_codes.append(36 * 2 + idx)
+            else:
+                lenght = len(free_block_ids)
+                act_codes.extend([
+                    36 * idx + MOVE_TO_INDEX[free_block_ids[i]][free_block_ids[j]]
+                    for i in range(lenght) for j in range(i + 1, lenght)])
+        return np.array(act_codes)
 
     def _add_bias_to_pieces(self, bias):
         self.round_ctr += bias
@@ -58,31 +66,41 @@ class EnvForDeepRL(Env):
         # normal view, odd piece's turn
         if self.round_ctr & 1 != 0:
             if self.player_id != 0:
-                self._add_bias_to_pieces(1)
-            elif self.player_id == 0:
                 self._add_bias_to_pieces(-1)
+            elif self.player_id == 0:
+                self._add_bias_to_pieces(1)
 
     def change_to_normal_view(self):
         # in normal view, round_ctr and player_id share the same oddity
-        if (self.round_ctr & 1) ^ self.player_id == 1:
+        if (self.round_ctr & 1) ^ self.player_id == 0:
             self._add_bias_to_pieces(-1)
 
     def index_to_agent_move(self, prob_vector_index):
-        collapsed_qttt_idx = prob_vector_index % 36
-        index_0_to_35 = collapsed_qttt_idx - 36 * (collapsed_qttt_idx % 36)
+        # collapse and game ends
+        if prob_vector_index >= 72:
+            return self.collapsed_qttts[prob_vector_index-72], None
+
+        # collapse and drop a piece
+        collapsed_qttt_idx = prob_vector_index // 36
+        index_0_to_35 = prob_vector_index % 36
         return self.collapsed_qttts[collapsed_qttt_idx], INDEX_TO_MOVE[index_0_to_35]
 
     def pick_a_valid_move(self, net_prob_vector):
-        # net_prob_vector = net_prob_vector * self.valid_action_mask
-        # valid_prob_vector = net_prob_vector / net_prob_vector.sum()
-
         # choose action
-        action_code = np.random.choice(len(net_prob_vector), p=net_prob_vector)
+        # action_code = np.random.choice(len(net_prob_vector), p=net_prob_vector)
+        for i in range(len(net_prob_vector)):
+            if net_prob_vector[i] != 0:
+                return i
+        # action_code = np.random.choice(len(net_prob_vector), p=net_prob_vector)
+        assert False
+        action_code = 0
         return action_code
 
     def act(self, action_code):
         # decode_action_code covert an action code to (collapse_block_id, agent_move)
         # we use collapse_block_id to choose what is the collapsed qttt
         collapsed_qttt, agent_move = self.index_to_agent_move(action_code)
-        self.player_id = self.player_id ^ 1
-        return super().step(collapsed_qttt, agent_move)
+        qttt, round_ctr, reward, done = super().step(collapsed_qttt, agent_move)
+        if not qttt.has_cycle:
+            self._dulplicate_collapsed_qttts_and_valid_moves()
+        return qttt, round_ctr, reward, done
