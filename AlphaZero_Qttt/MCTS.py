@@ -1,10 +1,12 @@
+from collections import defaultdict
+
 import math
 
 from AlphaZero_Qttt.env_bridge import *
 from env import REWARD
-from collections import defaultdict
 
 EPS = 1e-8
+
 
 class MCTS:
     def __init__(self, env, nn, sim_nums, cpuct):
@@ -40,7 +42,7 @@ class MCTS:
         valid_child_priors = act_probs[valid_action_idx]  # select only legal moves entries in act_probs array
         valid_child_priors = 0.75 * valid_child_priors + \
                              0.25 * np.random.dirichlet(
-            np.array([0.1] * len(valid_child_priors), dtype=np.float32))
+            np.array([0.03] * len(valid_child_priors), dtype=np.float32))
         act_probs[valid_action_idx] = valid_child_priors
         return act_probs
 
@@ -71,7 +73,6 @@ class MCTS:
             probs[bestA] = 1.0
             return deepcopy(self.env.collapsed_qttts), probs
 
-        
         counts = counts ** (1. / temp)
         # counts_sum is the total number that state s is visited
         counts_sum = counts.sum()
@@ -111,7 +112,6 @@ class MCTS:
         if s not in self.Ps:
             # expand a new leaf node
             self.Ps[s], v = self.nn.predict(game_env)
-
 
             # the valid action_codes given the current environment
             valids = game_env.get_valid_action_codes()
@@ -155,7 +155,7 @@ class MCTS:
         # keep select-select-select until expand and bp
         v = self.search(game_env)
 
-
+        ############### BP FROM Child Node #################
         # Updating the Qsa, Nsa, and Ns
         self.Qsa[(s, a)] = (self.Nsa[(s, a)] * self.Qsa[(s, a)] + v) / (self.Nsa[(s, a)] + 1)
         self.Nsa[(s, a)] += 1
