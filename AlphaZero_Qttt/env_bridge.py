@@ -78,22 +78,18 @@ class EnvForDeepRL(Env):
     def index_to_agent_move(self, prob_vector_index):
         # collapse and game ends
         if prob_vector_index >= 72:
-            return self.collapsed_qttts[prob_vector_index-72], None
+            return self.collapsed_qttts[prob_vector_index - 72], None
 
         # collapse and drop a piece
         collapsed_qttt_idx = prob_vector_index // 36
         index_0_to_35 = prob_vector_index % 36
         return self.collapsed_qttts[collapsed_qttt_idx], INDEX_TO_MOVE[index_0_to_35]
 
-    def pick_a_valid_move(self, net_prob_vector):
-        # choose action
-        # action_code = np.random.choice(len(net_prob_vector), p=net_prob_vector)
-        for i in range(len(net_prob_vector)):
-            if net_prob_vector[i] != 0:
-                return i
-        # action_code = np.random.choice(len(net_prob_vector), p=net_prob_vector)
-        assert False
-        action_code = 0
+    def pick_a_valid_move(self, net_prob_vector, is_train=True):
+        if is_train:
+            action_code = np.random.choice(len(net_prob_vector), p=net_prob_vector)
+        else:
+            action_code = net_prob_vector.argmax()
         return action_code
 
     def act(self, action_code):

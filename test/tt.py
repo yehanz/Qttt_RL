@@ -1,5 +1,5 @@
-import numpy as np
+def x
 
 if __name__ == '__main__':
-    x = [1,2,3]
-    print(x.extend([4]))
+    x = [[0,1,2,3]]
+

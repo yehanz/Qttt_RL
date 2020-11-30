@@ -3,7 +3,6 @@ from copy import deepcopy
 from AlphaZero_Qttt.MCTS import MCTS
 from AlphaZero_Qttt.Network import Network
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
-from env import REWARD
 
 
 def learn_from_self_play(nnet: Network, config):
@@ -32,7 +31,7 @@ def learn_from_self_play(nnet: Network, config):
 
     # for each iteration, we train a new nn and compete with the older one
     for i in range(config.numMCTSSims):
-
+        print('epoch %d' % i)
         # for each round, keep 50% stale training data from last round
         if len(training_example) > config.training_dataset_limit:
             training_example = training_example[:-int(
@@ -47,12 +46,13 @@ def learn_from_self_play(nnet: Network, config):
         competitor_net.train(training_example)
 
         # if competitor_net better than self.curr_net
-        new_wins, old_wins = battle(competitor_net, curr_net, config)
-        print('win rate: %.3f' % (new_wins / (new_wins + old_wins)))
-        if new_wins / (new_wins + old_wins) > config.updateThreshold:
+        new_wins, old_wins, tie = battle(competitor_net, curr_net, config)
+        print('win rate: %.3f' % (new_wins / config.roundsOfBattle))
+        if new_wins / config.roundsOfBattle > config.updateThreshold or \
+                old_wins / config.roundsOfBattle < (1 - config.updateThreshold):
             print('-------------save the better network-----------------')
             # save current network
-            competitor_net.save(competitor_net, config)
+            competitor_net.save(config)
             # use new network to generate training data
             curr_net = competitor_net
 
@@ -67,11 +67,12 @@ def run_one_episode(curr_net, config):
     training_examples = []
 
     while True:
+        temp = 1 if game_env.round_ctr < 7 else 0
         # get player's search tree
         mc = monte_carlo_trees[game_env.current_player_id]
 
         # [states_from_even_piece_view, probabilistic_policy, 1/-1]
-        states, policy_given_state = mc.get_action_prob()
+        states, policy_given_state = mc.get_action_prob(temp)
 
         action_code = game_env.pick_a_valid_move(policy_given_state)
 
@@ -85,53 +86,54 @@ def run_one_episode(curr_net, config):
             mct.step(action_code)
 
         if done:
-            update_reward(training_examples, reward, game_env.current_player_id)
+            training_examples = update_reward(training_examples, reward, game_env.current_player_id)
             break
 
     return training_examples
 
 
 def update_reward(training_examples, reward, curr_player_id):
-    return ((x[0], x[1], reward * (-1) ** (curr_player_id != x[2])) for x in training_examples)
+    return [(x[0], x[1], reward * (-1) ** (curr_player_id != x[2])) for x in training_examples]
 
 
-def battle(competitor_net, curr_net, config):
+def battle(net1, net2, config):
     """
         compete_rounds: rounds of games for old/new network competition
         max_round_of_simulation: MCTS related parameters, # of rounds of planning before yielding
                     the final action
     """
+    score_board = {net1: 0, net2: 0, None: 0}
+
+    for _ in range(config.roundsOfBattle // 2):
+        score_board[one_round_of_battle(net1, net2, config)] += 1
+    for _ in range(config.roundsOfBattle // 2):
+        score_board[one_round_of_battle(net2, net1, config)] += 1
+
+    return score_board[net1], score_board[net2], score_board[None]
+
+
+def one_round_of_battle(net1, net2, config):
     game_env = EnvForDeepRL()
+    mc1 = MCTS(EnvForDeepRL(), net1, config.numMCTSSims, config.cpuct)
+    mc2 = MCTS(EnvForDeepRL(), net2, config.numMCTSSims, config.cpuct)
+    monte_carlo_trees = [mc1, mc2]
 
-    # we can use only 1 tree here
-    competitor_mc = MCTS(deepcopy(game_env), competitor_net,
-                         config.numMCTSSims, config.cpuct)
-    curr_mc = MCTS(deepcopy(game_env), curr_net,
-                   config.numMCTSSims, config.cpuct)
-    monte_carlo_trees = [competitor_mc, curr_mc]
+    while True:
+        mc = monte_carlo_trees[game_env.current_player_id]
 
-    score_board = {competitor_mc: 0, curr_mc: 0}
+        # set temperature to 0 to get the strongest possible move
+        _, policy_given_state = mc.get_action_prob(temp=0)
+        action_code = game_env.pick_a_valid_move(policy_given_state, is_train=False)
 
-    for _ in range(config.roundsOfBattle):
-        while True:
-            mc = monte_carlo_trees[game_env.current_player_id]
+        # step action
+        _, _, reward, done = game_env.act(action_code)
+        for mct in monte_carlo_trees:
+            mct.step(action_code, is_train=False)
 
-            # [state_from_even_piece_view, probabilistic_policy, None]
-            state, policy_given_state = mc.get_action_prob()
-            action_code = game_env.pick_a_valid_move(policy_given_state)
-
-            # step action
-            _, _, reward, done = game_env.act(action_code)
-            for mct in monte_carlo_trees:
-                mct.step(action_code)
-
-            if done:
-                if reward > 0:
-                    score_board[monte_carlo_trees[game_env.current_player_id]] += 1
-                elif reward < 0:
-                    score_board[monte_carlo_trees[game_env.current_player_id ^ 1]] += 1
-                # swap player sequence to make a different play take the first hand in the next round
-                monte_carlo_trees.reverse()
-                break
-
-        return score_board[competitor_mc], score_board[curr_mc]
+        if done:
+            if reward > 0:
+                return monte_carlo_trees[game_env.current_player_id].nn
+            elif reward < 0:
+                return monte_carlo_trees[game_env.current_player_id ^ 1].nn
+            else:
+                return None

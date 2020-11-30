@@ -1,20 +1,10 @@
 import math
 
 from AlphaZero_Qttt.env_bridge import *
+from env import REWARD
+from collections import defaultdict
 
 EPS = 1e-8
-
-REWARD = {
-    'NO_REWARD': 0.0,
-    'Y_WIN_REWARD': 1.0,
-    'X_WIN_REWARD': -1.0,
-    # both Y and X wins, but Y wins earlier
-    'YX_WIN_REWARD': 0.7,
-    # both Y and X wins, but X wins earlier
-    'XY_WIN_REWARD': -0.7,
-    'TIE_REWARD': 0.0,
-}
-
 
 class MCTS:
     def __init__(self, env, nn, sim_nums, cpuct):
@@ -24,18 +14,35 @@ class MCTS:
         self.sim_nums = sim_nums
         self.cpuct = cpuct
 
-        self.Qsa = {}  # stores Q values for s,a (as defined in the paper)
-        self.Nsa = {}  # stores #times edge s,a was visited
-        self.Ns = {}  # stores #times board s was visited
+        self.Qsa = defaultdict(lambda: 0)  # stores Q values for s,a (as defined in the paper)
+        self.Nsa = defaultdict(lambda: 0)  # stores #times edge s,a was visited
+        self.Ns = defaultdict(lambda: 0)  # stores #times board s was visited
         self.Ps = {}  # stores initial policy (returned by neural net)
 
         self.Es = {}  # stores qttt.has_won() ended for board s
         self.Vs = {}  # # store valid moves given state s
 
-    def step(self, action_code):
+    def reset_game_env(self):
+        self.env = EnvForDeepRL()
+        self.env.change_to_even_pieces_view()
+
+    def step(self, action_code, is_train=True):
         # always append act with change to even piece view
         self.env.act(action_code)
         self.env.change_to_even_pieces_view()
+        # Add Dirichlet Noise to the new root node
+        s = self.env.qttt.get_state()
+        # During battle no noise is added in order to perform the strongest play
+        if s in self.Vs and is_train:
+            self.Ps[s] = self.add_dirichlet_noise(self.Vs[s], self.Ps[s])
+
+    def add_dirichlet_noise(self, valid_action_idx, act_probs):
+        valid_child_priors = act_probs[valid_action_idx]  # select only legal moves entries in act_probs array
+        valid_child_priors = 0.75 * valid_child_priors + \
+                             0.25 * np.random.dirichlet(
+            np.array([0.1] * len(valid_child_priors), dtype=np.float32))
+        act_probs[valid_action_idx] = valid_child_priors
+        return act_probs
 
     def get_action_prob(self, temp=1):
         """
@@ -45,10 +52,11 @@ class MCTS:
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
         """
-        for i in range(self.sim_nums):
+        # for _ in tqdm(range(self.sim_nums)):
+        for _ in range(self.sim_nums):
             self.search(deepcopy(self.env))
-            print('\n\n\n')
 
+        self.env.change_to_even_pieces_view()
         s = self.env.qttt.get_state()
 
         # get_valid_action_codes() will return the valid action code given the current environment
@@ -59,20 +67,17 @@ class MCTS:
         if temp == 0:
             bestAs = np.array(np.argwhere(counts == np.max(counts))).flatten()
             bestA = np.random.choice(bestAs)
-            probs = [0] * len(counts)
-            probs[bestA] = 1
-            return probs
+            probs = np.array([0] * len(counts))
+            probs[bestA] = 1.0
+            return deepcopy(self.env.collapsed_qttts), probs
 
         
         counts = counts ** (1. / temp)
         # counts_sum is the total number that state s is visited
         counts_sum = counts.sum()
-        assert counts_sum != 0
         probs = counts / counts_sum
 
-        self.env.change_to_even_pieces_view()
-        # probs not 74 length!
-        return self.env.collapsed_qttts, probs
+        return deepcopy(self.env.collapsed_qttts), probs
 
     def search(self, game_env: EnvForDeepRL):
         """
@@ -96,20 +101,17 @@ class MCTS:
         done, winner = game_env.has_won()
         reward = REWARD[winner + '_REWARD']
 
+        ############## EXPAND and BP ##################
+
         if s not in self.Es:
             self.Es[s] = (done, reward)
         if self.Es[s][0]:
-            print('4444444444 BP END STATE 444444444')
-            print('round counter and player id')
-            print(game_env.round_ctr, game_env.player_id)
-            print('state and value')
-            print(s, self.Es[s][1])
-            # terminal node
             return -self.Es[s][1]
 
         if s not in self.Ps:
-            # leaf node
+            # expand a new leaf node
             self.Ps[s], v = self.nn.predict(game_env)
+
 
             # the valid action_codes given the current environment
             valids = game_env.get_valid_action_codes()
@@ -118,70 +120,45 @@ class MCTS:
             if sum_Ps_s > 0:
                 self.Ps[s] /= sum_Ps_s  # renormalize
             else:
-                # if all valid moves were masked make all valid moves equally probable
-
-                # All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
-                # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
+                # All valid moves may be masked if either your NNet architecture is
+                # insufficient or you've get overfitting or something else.
+                # If you have got dozens or hundreds of these messages you should pay
+                # attention to your NNet and/or training process.
                 print("All valid moves were masked, doing a workaround.")
 
             self.Vs[s] = valids  # store valid moves given state s
             self.Ns[s] = 0
-            print('2222222 expand and BP leaf node 222222222')
-            print('round counter and player id')
-            print(game_env.round_ctr, game_env.player_id)
-            print('state and value')
-            print(s, v)
             return -v
 
-        # not leaf node
+        ################ SELECT ####################
         valids = self.Vs[s]
         cur_best = -float('inf')
         best_act = -1
 
         # pick the action with the highest upper confidence bound
         for a in valids:
-            if (s, a) in self.Qsa:
-                u = self.Qsa[(s, a)] + self.cpuct * self.Ps[s][a] * \
-                    math.sqrt(self.Ns[s]) / (1 + self.Nsa[(s, a)])
-            else:
-                u = EPS + self.cpuct * self.Ps[s][a] * math.sqrt(self.Ns[s])  # Q = 0 ?, supposed to be an EPS
+            # if an action is never tried before, default dict will return 0
+            # for Qsa, Nsa, Ns
+            # EPS is used here such that u is not all 0 if none of the action code
+            # of s has been tried before, thus u = k* Psa, and network evaluation
+            # can give us hint on the initial try.
+            u = self.Qsa[(s, a)] + self.cpuct * self.Ps[s][a] * \
+                math.sqrt(self.Ns[s] + EPS) / (1 + self.Nsa[(s, a)])
 
             if u > cur_best:
                 cur_best = u
                 best_act = a
 
         a = best_act
-        print('1111111111 select 11111111111111')
-        print('before: state, round ctr, player id, action')
-        print(s)
-        print(game_env.round_ctr, game_env.player_id)
-        if a > 71:
-            print('select a collapsed ending state! %d' % a)
-        print(INDEX_TO_MOVE[a % 36], a)
         game_env.act(a)
-        print('after: state, round ctr, player id')
-        print(game_env.qttt.get_state())
-        print(game_env.round_ctr, game_env.player_id)
-
         game_env.change_to_even_pieces_view()
-        print('even piece view')
-        print(game_env.qttt.get_state())
-        print(game_env.round_ctr, game_env.player_id)
-        # TODO: How to handle case where one of the collapse case is the terminate state?
-        # In that case, one of the next valid move list is None
+        # keep select-select-select until expand and bp
         v = self.search(game_env)
 
+
         # Updating the Qsa, Nsa, and Ns
-        if (s, a) in self.Qsa:
-            self.Qsa[(s, a)] = (self.Nsa[(s, a)] * self.Qsa[(s, a)] + v) / (self.Nsa[(s, a)] + 1)
-            self.Nsa[(s, a)] += 1
-
-        else:
-            self.Qsa[(s, a)] = v
-            self.Nsa[(s, a)] = 1
-
+        self.Qsa[(s, a)] = (self.Nsa[(s, a)] * self.Qsa[(s, a)] + v) / (self.Nsa[(s, a)] + 1)
+        self.Nsa[(s, a)] += 1
+        # Ns is the total count of trying child nodes
         self.Ns[s] += 1
-        # print('444444444 back propagate PARENT 44444444')
-        # print('state and value')
-        # print(s, v)
         return -v
