@@ -20,7 +20,7 @@ class MCTS:
         self.Ps = {}  # stores initial policy (returned by neural net)
 
         self.Es = {}  # stores qttt.has_won() ended for board s
-        self.Vs = {}  # stores game.getValidMoves for board s
+        self.Vs = {}  # # store valid moves given state s
 
     def reset_game_env(self):
         self.env = EnvForDeepRL()
@@ -46,7 +46,7 @@ class MCTS:
 
     def get_action_prob(self, temp=1):
         """
-        This function performs sim_nums simulations of MCTS starting from
+        This function performs self.sim_nums simulations of MCTS starting from
         qttt.
         Returns:
             probs: a policy vector where the probability of the ith action is
@@ -59,6 +59,7 @@ class MCTS:
         self.env.change_to_even_pieces_view()
         s = self.env.qttt.get_state()
 
+        # get_valid_action_codes() will return the valid action code given the current environment
         counts = np.zeros(74)
         for action_code in self.env.get_valid_action_codes():
             counts[action_code] = self.Nsa[(s, action_code)]
@@ -70,8 +71,9 @@ class MCTS:
             probs[bestA] = 1.0
             return deepcopy(self.env.collapsed_qttts), probs
 
-        # init situation
+        
         counts = counts ** (1. / temp)
+        # counts_sum is the total number that state s is visited
         counts_sum = counts.sum()
         probs = counts / counts_sum
 
@@ -110,6 +112,8 @@ class MCTS:
             # expand a new leaf node
             self.Ps[s], v = self.nn.predict(game_env)
 
+
+            # the valid action_codes given the current environment
             valids = game_env.get_valid_action_codes()
 
             sum_Ps_s = np.sum(self.Ps[s])
@@ -151,8 +155,8 @@ class MCTS:
         # keep select-select-select until expand and bp
         v = self.search(game_env)
 
-        ############### BP FROM Child Node #################
 
+        # Updating the Qsa, Nsa, and Ns
         self.Qsa[(s, a)] = (self.Nsa[(s, a)] * self.Qsa[(s, a)] + v) / (self.Nsa[(s, a)] + 1)
         self.Nsa[(s, a)] += 1
         # Ns is the total count of trying child nodes
