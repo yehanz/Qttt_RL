@@ -1,3 +1,4 @@
+from collections import deque
 from copy import deepcopy
 
 import numpy as np
@@ -82,7 +83,6 @@ class Env:
         self.round_ctr += 1
         self.player_id = self.player_id ^ 1
 
-        assert not qttt.has_cycle
         self.qttt = qttt
         self.qttt.step(agent_move, mark)
 
@@ -148,11 +148,28 @@ class Qttt:
         """
         return self.to_hashable()
 
-    def _has_cycle(self, agent_move):
-        assert not self.board[agent_move[0]].has_collapsed
-        assert not self.board[agent_move[1]].has_collapsed
-        return bool(self.board[agent_move[0]].entangled_marks and
-                    self.board[agent_move[1]].entangled_marks)
+    def _has_cycle(self, agent_move, mark):
+        # bfs to find cycle
+        start_point_id, end_point_id = agent_move
+        visited = set([start_point_id])
+        q = deque([start_point_id])
+        while q:
+            cur_point_id = q.popleft()
+            cur_point = self.board[cur_point_id]
+            for i in range(len(cur_point.entangled_blocks)):
+                entangled_block = cur_point.entangled_blocks[i]
+                entangled_mark = cur_point.entangled_marks[i]
+                if entangled_block == end_point_id:
+                    if entangled_mark != mark:
+                        return True
+                    else:
+                        continue
+                if entangled_block in visited:
+                    continue
+                else:
+                    visited.add(entangled_block)
+                    q.append(entangled_block)
+        return False
 
     def get_all_possible_collapse(self, last_move, last_mark):
         """
@@ -227,12 +244,12 @@ class Qttt:
         if loc_pair is None:
             self.has_cycle = False
             return
-        self.has_cycle = self._has_cycle(loc_pair)
         # put mark in pair locations
         loc1, loc2 = loc_pair
 
         self.board[loc1].place_mark(mark, loc2)
         self.board[loc2].place_mark(mark, loc1)
+        self.has_cycle = self._has_cycle(loc_pair, mark)
 
     def visualize_board(self):
         # visualize the Qttt board

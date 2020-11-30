@@ -1,3 +1,4 @@
+import pickle
 from copy import deepcopy
 
 from AlphaZero_Qttt.MCTS import MCTS
@@ -5,10 +6,11 @@ from AlphaZero_Qttt.Network import Network
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
 
 
-def learn_from_self_play(nnet: Network, config):
+def learn_from_self_play(nnet: Network, config, training_example=None):
     """
     Main story for the deep RL agent
 
+    :param training_example: store training data generated during self-play
     :EnvForDeepRL game_env: game_env environment which provides APIs to interact with the game_env environment
     :param nnet: neural network generate state-value v(s) and probabilistic policy P(a|s)
     :param config: configurable program parameters
@@ -25,10 +27,6 @@ def learn_from_self_play(nnet: Network, config):
     :return:
     """
     curr_net = nnet
-
-    # store training data generated during self-play
-    training_example = []
-
     # for each iteration, we train a new nn and compete with the older one
     for i in range(config.numMCTSSims):
         print('epoch %d' % i)
@@ -41,20 +39,28 @@ def learn_from_self_play(nnet: Network, config):
         while len(training_example) < config.training_dataset_limit:
             training_example += run_one_episode(curr_net, config)
 
+        # save training examples for checkpoint
+        pickle.dump(training_example, open(
+            config.load_checkpoint_filename + config.training_examples_filename, "wb"))
         # training a new nn based on curr nn
         competitor_net = deepcopy(curr_net)
         competitor_net.train(training_example)
 
         # if competitor_net better than self.curr_net
         new_wins, old_wins, tie = battle(competitor_net, curr_net, config)
-        print('win rate: %.3f' % (new_wins / config.roundsOfBattle))
+        print('win rate: %.3f, win %d loss %d tie %d' % (new_wins / config.updateThreshold, new_wins, old_wins, tie))
         if new_wins / config.roundsOfBattle > config.updateThreshold or \
-                old_wins / config.roundsOfBattle < (1 - config.updateThreshold):
+                new_wins + tie > 0.9 * config.roundsOfBattle:
             print('-------------save the better network-----------------')
             # save current network
             competitor_net.save(config)
             # use new network to generate training data
             curr_net = competitor_net
+            config.numMCTSSims = 400
+            config.training_dataset_limit = 8000
+        else:
+            config.numMCTSSims = 1.5*config.numMCTSSims
+            config.training_dataset_limit = 1.2*config.training_dataset_limit
 
 
 def run_one_episode(curr_net, config):

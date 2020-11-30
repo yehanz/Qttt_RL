@@ -1,12 +1,13 @@
-  
+import argparse
+import json
+import random
+import sys
+
 from tqdm import tqdm
+
 from GameTree import GameTree
 from env import Env, after_action_state
 from human_agent import HumanAgent
-import random
-import json
-import sys
-import argparse
 
 gamma = 0.9
 
@@ -59,16 +60,15 @@ class TD_agent:
             collapsed_qttt, agent_move = self.random_action(free_qblock_id_lists, collapsed_qttts)
         else:
             collapsed_qttt, agent_move = self.greedy_action(free_qblock_id_lists, collapsed_qttts, mark)
-        
-        return collapsed_qttt, agent_move
 
+        return collapsed_qttt, agent_move
 
     def decay_epsilon(self):
         self.epsilon *= self.decay_rate
 
     def random_action(self, free_qblock_id_lists, collapsed_qttts):
         n = len(collapsed_qttts)
-        index = random.randint(0, n-1)
+        index = random.randint(0, n - 1)
         if free_qblock_id_lists[index] is None:
             move = None
         else:
@@ -84,8 +84,8 @@ class TD_agent:
                 states[(i, -1, -1)] = GameTree.get_state_val(nstate)
                 continue
             n = len(free_qblock_id_lists[i])
-            for j in range(n-1):
-                for k in range(j+1, n):
+            for j in range(n - 1):
+                for k in range(j + 1, n):
                     loc1 = free_qblock_id_lists[i][j]
                     loc2 = free_qblock_id_lists[i][k]
                     nstate = after_action_state(collapsed_qttts[i], (loc1, loc2), mark)
@@ -94,13 +94,12 @@ class TD_agent:
             indices = GameTree.best_states(states, min)
         else:
             indices = GameTree.best_states(states, max)
-        
+
         i, j, k = random.choice(indices)
 
         action = (collapsed_qttts[i], (j, k))
         return action
 
-    
     def bellman_backup(self, qttt, next_qttt, reward, mark):
         """
         Bellman backup for TD learning
@@ -111,7 +110,7 @@ class TD_agent:
         """
         state_value = GameTree.get_state_val(qttt.get_state())
         next_state_value = GameTree.get_state_val(next_qttt.get_state())
-        updated_state_value = state_value + self.alpha*(reward + gamma*next_state_value - state_value)
+        updated_state_value = state_value + self.alpha * (reward + gamma * next_state_value - state_value)
         GameTree.set_state_value(qttt.get_state(), updated_state_value)
 
 
@@ -127,7 +126,7 @@ class ProgramDriver:
 
     def learn(self, max_episode, save_as_file='TD_policy.dat'):
         self._learn(max_episode, save_as_file)
-        
+
     def _learn(self, max_episode, save_as_file='TD_policy.dat'):
         env = Env()
         agents = [TD_agent(self.epsilon, self.alpha, self.decay_rate),
@@ -163,7 +162,7 @@ class ProgramDriver:
         ProgramDriver.load_model(save_as_file)
         env = Env()
         agents = [TD_agent(self.epsilon, self.alpha, self.decay_rate),
-                HumanAgent(1),]
+                  HumanAgent(1), ]
 
         while True:
             env.reset()
@@ -179,14 +178,14 @@ class ProgramDriver:
                 free_qblock_id_lists, collapsed_qttts = env.get_valid_moves()
 
                 collapsed_qttt, agent_move = agent.act(free_qblock_id_lists, collapsed_qttts, mark)
-                
+
                 if collapsed_qttt is None:
                     ProgramDriver.save_model(save_as_file, 0, self.epsilon, self.alpha, self.decay_rate)
                     print("Model saved.")
                     sys.exit()
 
                 next_qttt, next_round, reward, done = env.step(collapsed_qttt, agent_move, mark)
-                
+
                 print('')
                 env.render()
 
@@ -196,7 +195,6 @@ class ProgramDriver:
                     GameTree.set_state_value(next_qttt.get_state(), reward)
                     next_qttt.show_result()
                     break
-
 
     # function save_model and load_model cited from https://github.com/haje01/gym-tictactoe
     @staticmethod
@@ -232,7 +230,7 @@ if __name__ == '__main__':
     parser.add_argument("mode", type=str, help="auto or human")
     parser.add_argument("-s", "--save", type=str, help="file name of model saved")
     parser.add_argument("-l", "--load", type=str, help="file name of model load")
-    
+
     args = parser.parse_args()
 
     if args.load:
@@ -246,7 +244,6 @@ if __name__ == '__main__':
         pd.play_with_human(args.save)
     else:
         print("python rl_agent.py auto|human save_file load_file")
-
 
     # info = ProgramDriver.load_model('TD_policy.dat')
     # pd = ProgramDriver(epsilon=info['epsilon'], alpha=info['alpha'], decay_rate=info['decay_rate'])
