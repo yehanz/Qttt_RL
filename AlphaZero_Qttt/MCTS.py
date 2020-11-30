@@ -34,15 +34,15 @@ class MCTS:
         s = self.env.qttt.get_state()
         # During battle no noise is added in order to perform the strongest play
         if s in self.Vs and is_train:
-            self.add_dirichlet_noise(self.Vs[s], self.Ps[s])
+            self.Ps[s] = self.add_dirichlet_noise(self.Vs[s], self.Ps[s])
 
-    def add_dirichlet_noise(self, action_idxs, child_priors):
-        valid_child_priors = child_priors[action_idxs]  # select only legal moves entries in child_priors array
+    def add_dirichlet_noise(self, valid_action_idx, act_probs):
+        valid_child_priors = act_probs[valid_action_idx]  # select only legal moves entries in act_probs array
         valid_child_priors = 0.75 * valid_child_priors + \
                              0.25 * np.random.dirichlet(
             np.array([0.1] * len(valid_child_priors), dtype=np.float32))
-        child_priors[action_idxs] = valid_child_priors
-        return child_priors
+        act_probs[valid_action_idx] = valid_child_priors
+        return act_probs
 
     def get_action_prob(self, temp=1):
         """
@@ -146,7 +146,6 @@ class MCTS:
                 best_act = a
 
         a = best_act
-        assert game_env.qttt.get_state() == s
         game_env.act(a)
         game_env.change_to_even_pieces_view()
         # keep select-select-select until expand and bp

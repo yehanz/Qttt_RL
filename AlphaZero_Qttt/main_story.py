@@ -3,7 +3,7 @@ from copy import deepcopy
 from AlphaZero_Qttt.MCTS import MCTS
 from AlphaZero_Qttt.Network import Network
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
-from AlphaZero_Qttt.env_bridge import INDEX_TO_MOVE
+
 
 def learn_from_self_play(nnet: Network, config):
     """
@@ -47,8 +47,9 @@ def learn_from_self_play(nnet: Network, config):
 
         # if competitor_net better than self.curr_net
         new_wins, old_wins, tie = battle(competitor_net, curr_net, config)
-        print('win rate: %.3f' % (new_wins / (new_wins + old_wins)))
-        if new_wins / (new_wins + old_wins + tie) > config.updateThreshold:
+        print('win rate: %.3f' % (new_wins / config.roundsOfBattle))
+        if new_wins / config.roundsOfBattle > config.updateThreshold or \
+                old_wins / config.roundsOfBattle < (1 - config.updateThreshold):
             print('-------------save the better network-----------------')
             # save current network
             competitor_net.save(config)
@@ -79,10 +80,6 @@ def run_one_episode(curr_net, config):
         training_examples.append([states, policy_given_state,
                                   game_env.current_player_id])
 
-        print(INDEX_TO_MOVE[action_code % 36] if action_code<72 else 'done')
-        print(states[0].to_hashable())
-        print(states[1].to_hashable())
-        print('\n')
         # step action
         _, _, reward, done = game_env.act(action_code)
         for mct in monte_carlo_trees:

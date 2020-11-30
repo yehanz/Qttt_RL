@@ -7,7 +7,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
-
 from AlphaZero_Qttt.env_bridge import *
 
 
@@ -191,11 +190,11 @@ class QtttDataset(Dataset):
 
 
 class Network:
-    def __init__(self):
-        self.lr = 1e-3
-        self.weight_decay = 5e-6
-        self.epochs = 10
-        self.batch_size = 512
+    def __init__(self, config=None):
+        self.lr = config.learning_rate if config else 1.5e-6
+        self.weight_decay = config.weight_decay if config else 1e-6
+        self.epochs = config.train_epoch if config else 40
+        self.batch_size = config.batch_size if config else 512
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.net = MiniAlphaZeroNetWork()
         # self.net = BasicNetwork()
@@ -273,7 +272,8 @@ class Network:
                 del X, Y, target_p, target_v
 
             running_loss /= len(train_loader)
-            print('epoch: ', str(epoch + 1), 'Training Loss: ', running_loss)
+            if epoch % 10 == 0:
+                print('epoch: ', str(epoch + 1), 'Training Loss: ', running_loss)
 
     def save(self, config):
         torch.save({

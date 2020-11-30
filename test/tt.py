@@ -1,3 +1,5 @@
+def x
+
 if __name__ == '__main__':
-    x = {'a':1,'b':3, None: 0}
-    print(x[None]+1)
+    x = [[0,1,2,3]]
+
