@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3eacdf25-33fc-4503-a884-0bceadcbe06e" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/my_ttt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/my_ttt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utils/DataAugument" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/DataAugument" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utils/TestDataAugument.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/TestDataAugument.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -44,8 +43,8 @@
       <file leaf-file-name="DataAugument" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Utils/DataAugument">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="3" column="6" lean-forward="true" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="18" />
+            <state relative-caret-position="265">
+              <caret line="22" column="31" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -56,41 +55,8 @@
       <file leaf-file-name="TestDataAugument.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Utils/TestDataAugument.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" column="18" lean-forward="true" selection-start-line="2" selection-start-column="18" selection-end-line="2" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TestEnv.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnv.py">
-          <provider selected="true" editor-type-id="text-editor">
             <state>
-              <caret column="25" selection-start-column="25" selection-end-column="25" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="env_bridge.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1260">
-              <caret line="84" column="26" selection-start-line="84" selection-start-column="26" selection-end-line="84" selection-end-column="26" />
-              <folding>
-                <element signature="e#0#25#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TestQttt.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Unit Tests/TestQttt.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="11" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
+              <caret column="30" selection-start-column="30" selection-end-column="30" />
             </state>
           </provider>
         </entry>
@@ -133,6 +99,7 @@
       <find>self.env</find>
       <find>has_cyc</find>
       <find>EnvForDeepRL</find>
+      <find>MOVE_TO_INDEX</find>
     </findStrings>
     <replaceStrings>
       <replace>EVEN_WIN</replace>
@@ -196,7 +163,17 @@
             <path>
               <item name="Qttt_RL" type="b2602c69:ProjectViewProjectNode" />
               <item name="Qttt_RL" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Qttt_RL" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Qttt_RL" type="462c0819:PsiDirectoryNode" />
               <item name="Unit Tests" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Qttt_RL" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Qttt_RL" type="462c0819:PsiDirectoryNode" />
+              <item name="Utils" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -234,7 +211,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.TestDataAugument">
+  <component name="RunManager" selected="Python.DataAugument">
     <configuration name="DataAugument" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="my_ttt" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -335,10 +312,10 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.DataAugument" />
         <item itemvalue="Python.TestDataAugument" />
         <item itemvalue="Python.TestEnv" />
         <item itemvalue="Python.TestQttt" />
-        <item itemvalue="Python.DataAugument" />
         <item itemvalue="Python.play_with_human" />
       </list>
     </recent_temporary>
@@ -406,10 +383,10 @@
     <frame x="-1593" y="98" width="1440" height="798" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.15555556" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.15555556" />
       <window_info anchor="bottom" id="TODO" order="12" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Run" order="8" visible="true" weight="0.3121547" />
+      <window_info active="true" anchor="bottom" id="Run" order="8" visible="true" weight="0.3121547" />
       <window_info anchor="bottom" id="Version Control" order="4" />
       <window_info anchor="bottom" id="Python Console" order="5" weight="0.328125" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
@@ -851,13 +828,6 @@ mc.Nsa[(s,73)]</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnvBridge.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="29" selection-start-line="29" selection-end-line="29" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/Network.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4230">
@@ -913,22 +883,6 @@ mc.Nsa[(s,73)]</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1260">
-          <caret line="84" column="26" selection-start-line="84" selection-start-column="26" selection-end-line="84" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Utils/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnv.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -936,10 +890,33 @@ mc.Nsa[(s,73)]</expression-string>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Unit Tests/TestEnvBridge.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="44" selection-start-line="19" selection-start-column="31" selection-end-line="19" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Utils/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AlphaZero_Qttt/env_bridge.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" column="41" lean-forward="true" selection-start-line="24" selection-start-column="41" selection-end-line="24" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Utils/DataAugument">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="6" lean-forward="true" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="18" />
+        <state relative-caret-position="265">
+          <caret line="22" column="31" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
@@ -948,8 +925,8 @@ mc.Nsa[(s,73)]</expression-string>
     </entry>
     <entry file="file://$PROJECT_DIR$/Utils/TestDataAugument.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="18" lean-forward="true" selection-start-line="2" selection-start-column="18" selection-end-line="2" selection-end-column="18" />
+        <state>
+          <caret column="30" selection-start-column="30" selection-end-column="30" />
         </state>
       </provider>
     </entry>

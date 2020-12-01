@@ -1,4 +1,4 @@
-from Utils.DataAugument import DataAugument
+from Utils.DataAugument import
 
 def test_rotate():
     start_pos = tuple(range(9))
