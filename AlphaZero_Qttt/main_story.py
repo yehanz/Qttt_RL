@@ -28,27 +28,33 @@ def learn_from_self_play(nnet: Network, config, training_example=None):
     """
     curr_net = nnet
     # for each iteration, we train a new nn and compete with the older one
-    for i in range(config.numMCTSSims):
-        print('epoch %d' % i)
-        # for each round, keep 50% stale training data from last round
-        if len(training_example) > config.training_dataset_limit:
+    for epoch in range(config.numIters):
+        print('epoch %d' % epoch)
+
+        # keep some stale data
+        if not (epoch == 0 and config.skip_initial_data_drop) or \
+                len(training_example) > config.training_dataset_limit:
             training_example = training_example[:-int(
                 config.training_dataset_limit * (1 - config.fresh_data_percentage))]
 
-        # generate 50% new data with current nn
+        # generate some new data with current nn
         while len(training_example) < config.training_dataset_limit:
             training_example += run_one_episode(curr_net, config)
 
-        # save training examples for checkpoint
+        # save training examples for checkpoint since they are extremely time-consuming
+        # to generate
         pickle.dump(training_example, open(
             config.load_checkpoint_filename + config.training_examples_filename, "wb"))
+
         # training a new nn based on curr nn
         competitor_net = deepcopy(curr_net)
         competitor_net.train(training_example)
 
         # if competitor_net better than self.curr_net
         new_wins, old_wins, tie = battle(competitor_net, curr_net, config)
-        print('win rate: %.3f, win %d loss %d tie %d' % (new_wins / config.updateThreshold, new_wins, old_wins, tie))
+        print('win rate: %.3f, win %d loss %d tie %d' %
+              (new_wins / config.roundsOfBattle, new_wins, old_wins, tie))
+
         if new_wins / config.roundsOfBattle > config.updateThreshold or \
                 new_wins + tie > 0.9 * config.roundsOfBattle:
             print('-------------save the better network-----------------')
@@ -56,28 +62,23 @@ def learn_from_self_play(nnet: Network, config, training_example=None):
             competitor_net.save(config)
             # use new network to generate training data
             curr_net = competitor_net
-            config.numMCTSSims = 400
-            config.training_dataset_limit = 8000
+            config.numMCTSSims = 5
+            config.training_dataset_limit = 8
         else:
-            config.numMCTSSims = 1.5*config.numMCTSSims
-            config.training_dataset_limit = 1.2*config.training_dataset_limit
+            # increase the policy evaluation power if no improvment is observed this term
+            config.numMCTSSims = int(1.2 * config.numMCTSSims)
+            config.training_dataset_limit = int(1.2 * config.training_dataset_limit)
 
 
 def run_one_episode(curr_net, config):
     game_env = EnvForDeepRL()
-    # we can use only 1 tree here
-    monte_carlo_trees = [MCTS(deepcopy(game_env), curr_net,
-                              config.numMCTSSims, config.cpuct),
-                         MCTS(deepcopy(game_env), curr_net,
-                              config.numMCTSSims, config.cpuct), ]
+    mc = MCTS(EnvForDeepRL(), curr_net, config.numMCTSSims, config.cpuct)
     training_examples = []
 
     while True:
         temp = 1 if game_env.round_ctr < 7 else 0
-        # get player's search tree
-        mc = monte_carlo_trees[game_env.current_player_id]
 
-        # [states_from_even_piece_view, probabilistic_policy, 1/-1]
+        # [states_from_even_piece_view, probabilistic_policy, 1/0]
         states, policy_given_state = mc.get_action_prob(temp)
 
         action_code = game_env.pick_a_valid_move(policy_given_state)
@@ -88,8 +89,7 @@ def run_one_episode(curr_net, config):
 
         # step action
         _, _, reward, done = game_env.act(action_code)
-        for mct in monte_carlo_trees:
-            mct.step(action_code)
+        mc.step(action_code)
 
         if done:
             training_examples = update_reward(training_examples, reward, game_env.current_player_id)

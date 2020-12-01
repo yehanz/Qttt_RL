@@ -10,8 +10,7 @@ def one_round_of_battle(net, config, human_first):
     mc = MCTS(EnvForDeepRL(), net, config.numMCTSSims, config.cpuct)
     human_actor = partial(get_action_from_human, game_env)
     machine_actor = partial(get_action_from_machine, mc, game_env)
-    # actors = [human_actor, machine_actor]
-    actors = [human_actor, human_actor]
+    actors = [human_actor, machine_actor]
     if not human_first:
         actors.reverse()
 
@@ -53,8 +52,8 @@ def get_action_from_human(game_env: EnvForDeepRL):
         if game_env.collapsed_qttts[choice].has_won()[0]:
             return 72 + choice
 
-    print('valid block ids ' + str(game_env.next_valid_moves[choice]))
-    block_ids = input('please drop a piece, input 2 unique numbers ranging 0-8, like \'07\'')
+    print('valid block ids ' + str(game_env.next_valid_moves[choice] + 1))
+    block_ids = input('please drop a piece, input 2 unique numbers ranging 1-9, like \'17\'')
     id_num = sorted([int(x) for x in block_ids])
     if len(id_num) != 2 or id_num[0] not in game_env.next_valid_moves[choice] or id_num[1] not in \
             game_env.next_valid_moves[choice]:
@@ -66,7 +65,12 @@ def get_action_from_human(game_env: EnvForDeepRL):
 
 
 class args:
-    numMCTSSims = 50  # Number of games moves for MCTS to simulate.
+    batch_size = 512
+    weight_decay = 1e-6
+    train_epoch = 21
+    learning_rate = 1.5e-3
+
+    numMCTSSims = 2000  # Number of games moves for MCTS to simulate.
     cpuct = 1
 
     # path_checkpoints = '/content/gdrive/My Drive/checkpoints/teamproj/'
@@ -75,7 +79,7 @@ class args:
 
 
 if __name__ == '__main__':
-    net = Network()
+    net = Network(args)
     print("------------------------Load Model--------------------------")
     net.load_model(args.path_checkpoints, args.load_checkpoint_filename)
 

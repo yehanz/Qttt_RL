@@ -190,11 +190,11 @@ class QtttDataset(Dataset):
 
 
 class Network:
-    def __init__(self, config=None):
-        self.lr = config.learning_rate if config else 1.5e-6
-        self.weight_decay = config.weight_decay if config else 1e-6
-        self.epochs = config.train_epoch if config else 40
-        self.batch_size = config.batch_size if config else 512
+    def __init__(self, config):
+        self.lr = config.learning_rate
+        self.weight_decay = config.weight_decay
+        self.epochs = config.train_epoch
+        self.batch_size = config.batch_size
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.net = MiniAlphaZeroNetWork()
         # self.net = BasicNetwork()

@@ -15,14 +15,21 @@ class args:
     save_checkpoint_filename = 'team_baseline2.pt'
     load_checkpoint_filename = 'team_baseline2.pt'
     training_examples_filename = 'training_example.pt'
-    load_model = True
+    load_model = False
     load_data = False
-    numItersForTrainExamplesHistory = 20
+    skip_initial_data_drop = True
+
+    batch_size = 512
+    weight_decay = 1e-6
+    train_epoch = 21
+    learning_rate = 1.5e-3
 
 
 if __name__ == '__main__':
-    net = Network()
+    net = Network(args)
     training_examples = []
+
+    # load model ckp and training data ckp if needed
     if args.load_model:
         print("------------------------Resuming Training from Checkpoint--------------------------")
         net.load_model(args.path_checkpoints, args.load_checkpoint_filename)

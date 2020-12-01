@@ -32,7 +32,7 @@ class MCTS:
         # always append act with change to even piece view
         self.env.act(action_code)
         self.env.change_to_even_pieces_view()
-        # Add Dirichlet Noise to the new root node
+        # Add Dirichlet Noise to the new root node to ensure exploration is always guarenteed
         s = self.env.qttt.get_state()
         # During battle no noise is added in order to perform the strongest play
         if s in self.Vs and is_train:
