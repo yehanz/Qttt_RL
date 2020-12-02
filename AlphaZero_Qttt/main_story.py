@@ -4,6 +4,7 @@ from copy import deepcopy
 from AlphaZero_Qttt.MCTS import MCTS
 from AlphaZero_Qttt.Network import Network
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
+from Utils.get_sym import board_transforms, prob_vec_transforms
 
 
 def learn_from_self_play(nnet: Network, config, training_example=None):
@@ -84,8 +85,8 @@ def run_one_episode(curr_net, config):
         action_code = game_env.pick_a_valid_move(policy_given_state)
 
         # register data
-        training_examples.append([states, policy_given_state,
-                                  game_env.current_player_id])
+        training_examples += record_training_data(
+            states, policy_given_state, game_env.current_player_id)
 
         # step action
         _, _, reward, done = game_env.act(action_code)
@@ -96,6 +97,23 @@ def run_one_episode(curr_net, config):
             break
 
     return training_examples
+
+
+def record_training_data(states, policy_given_state, curr_player_id):
+    training_data = []
+    # get all symmetric cases of the chess board
+    # ATTENTION: when apply board_transforms[i] to qttt tensor, we must apply
+    # prob_vec_tranforms[i] correspondingly to the prob vector!
+    s1_tensor, s2_tensor = states[0].to_tensor(), states[1].to_tensor()
+    for i in range(len(board_transforms)):
+        training_data.append([
+            # transformed qttt tensor tuple
+            (board_transforms[i](s1_tensor), board_transforms[i](s2_tensor),),
+            # transformed qttt probability vector
+            policy_given_state[prob_vec_transforms[i]],
+            # current player id
+            curr_player_id])
+    return training_data
 
 
 def update_reward(training_examples, reward, curr_player_id):
