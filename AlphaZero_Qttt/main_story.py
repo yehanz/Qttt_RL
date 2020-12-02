@@ -45,7 +45,7 @@ def learn_from_self_play(nnet: Network, config, training_example=None):
         # save training examples for checkpoint since they are extremely time-consuming
         # to generate
         pickle.dump(training_example, open(
-            config.load_checkpoint_filename + config.training_examples_filename, "wb"))
+            config.path_checkpoints + config.training_examples_filename, "wb"))
 
         # training a new nn based on curr nn
         competitor_net = deepcopy(curr_net)
@@ -63,8 +63,8 @@ def learn_from_self_play(nnet: Network, config, training_example=None):
             competitor_net.save(config)
             # use new network to generate training data
             curr_net = competitor_net
-            config.numMCTSSims = 5
-            config.training_dataset_limit = 8
+            config.numMCTSSims = 400
+            config.training_dataset_limit = 4000
         else:
             # increase the policy evaluation power if no improvment is observed this term
             config.numMCTSSims = int(1.2 * config.numMCTSSims)
