@@ -200,6 +200,7 @@ class Network:
         self.net = MiniAlphaZeroNetWork()
         # self.net = BasicNetwork()
         self.net.to(self.device)
+        self.apply_trans = True
 
     def load_model(self, path_checkpoints, load_checkpoint_filename):
         assert os.path.isdir(path_checkpoints), 'Error: no checkpoint directory found!'
@@ -222,16 +223,24 @@ class Network:
 
         self.net.eval()
         with torch.no_grad():
-            qttt1, qttt2 = board_trans(game_env.collapsed_qttts[0].to_tensor()), \
-                           board_trans(game_env.collapsed_qttts[1].to_tensor())
+            if self.apply_trans:
+                qttt1, qttt2 = board_trans(game_env.collapsed_qttts[0].to_tensor()), \
+                               board_trans(game_env.collapsed_qttts[1].to_tensor())
+            else:
+                qttt1, qttt2 = game_env.collapsed_qttts[0].to_tensor(), \
+                               game_env.collapsed_qttts[1].to_tensor()
 
             qttt1 = qttt1.unsqueeze(0).to(self.device)
             qttt2 = qttt2.unsqueeze(0).to(self.device)
 
             output = self.net(qttt1, qttt2)
 
-        action_prob = F.softmax(output[0], dim=1).squeeze(0) \
-            .detach().cpu().numpy()[prob_vec_inverse_trans]
+        if self.apply_trans:
+            action_prob = F.softmax(output[0], dim=1).squeeze(0) \
+                .detach().cpu().numpy()[prob_vec_inverse_trans]
+        else:
+            action_prob = F.softmax(output[0], dim=1).squeeze(0) \
+                .detach().cpu().numpy()
         state_value = output[1].item()
         return action_prob * game_env.valid_action_mask, state_value
 

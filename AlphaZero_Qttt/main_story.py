@@ -28,19 +28,23 @@ def learn_from_self_play(nnet: Network, config, training_example=None):
     :return:
     """
     curr_net = nnet
+    training_example = [] if training_example is None else training_example
     # for each iteration, we train a new nn and compete with the older one
     for epoch in range(config.numIters):
         print('epoch %d' % epoch)
 
         # keep some stale data
-        if not (epoch == 0 and config.skip_initial_data_drop) or \
+        if not (epoch == 0 and config.skip_initial_data_drop) and \
                 len(training_example) > config.training_dataset_limit:
             training_example = training_example[:-int(
                 config.training_dataset_limit * (1 - config.fresh_data_percentage))]
 
         # generate some new data with current nn
-        while len(training_example) < config.training_dataset_limit:
-            training_example += run_one_episode(curr_net, config)
+        num_data = len(training_example)
+        while num_data < config.training_dataset_limit:
+            new_data = run_one_episode(curr_net, config)
+            num_data += len(new_data)
+            training_example += new_data
 
         # save training examples for checkpoint since they are extremely time-consuming
         # to generate
@@ -63,8 +67,8 @@ def learn_from_self_play(nnet: Network, config, training_example=None):
             competitor_net.save(config)
             # use new network to generate training data
             curr_net = competitor_net
-            config.numMCTSSims = 400
-            config.training_dataset_limit = 4000
+            config.numMCTSSims = 5
+            config.training_dataset_limit = 8
         else:
             # increase the policy evaluation power if no improvment is observed this term
             config.numMCTSSims = int(1.2 * config.numMCTSSims)

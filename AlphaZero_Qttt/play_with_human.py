@@ -54,7 +54,7 @@ def get_action_from_human(game_env: EnvForDeepRL):
 
     print('valid block ids ' + str(game_env.next_valid_moves[choice] + 1))
     block_ids = input('please drop a piece, input 2 unique numbers ranging 1-9, like \'17\'')
-    id_num = sorted([int(x) for x in block_ids])
+    id_num = sorted([int(x)-1 for x in block_ids])
     if len(id_num) != 2 or id_num[0] not in game_env.next_valid_moves[choice] or id_num[1] not in \
             game_env.next_valid_moves[choice]:
         print('invalid move!')
@@ -75,7 +75,7 @@ class args:
 
     # path_checkpoints = '/content/gdrive/My Drive/checkpoints/teamproj/'
     path_checkpoints = 'D:/h4p2_ckp/'
-    load_checkpoint_filename = 'team_baseline2.pt'
+    load_checkpoint_filename = 'shared_mcts.pt'
 
 
 if __name__ == '__main__':
