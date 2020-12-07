@@ -7,7 +7,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
+
 from AlphaZero_Qttt.env_bridge import *
+from Utils.get_sym import board_transforms, prob_vec_transforms
 
 
 class ConvBlock(nn.Module):
@@ -175,8 +177,7 @@ class QtttDataset(Dataset):
     def __init__(self, data):
         # data element: ((state1, state2), p, r)
         state_pairs, probs, rewards = zip(*data)
-        self.state_pair_tensors = [(state_pair[0].to_tensor(), state_pair[1].to_tensor())
-                                   for state_pair in state_pairs]
+        self.state_pair_tensors = state_pairs
         self.probs = torch.tensor(probs)
         self.rewards = torch.tensor(rewards)
 
@@ -190,15 +191,16 @@ class QtttDataset(Dataset):
 
 
 class Network:
-    def __init__(self, config=None):
-        self.lr = config.learning_rate if config else 1.5e-6
-        self.weight_decay = config.weight_decay if config else 1e-6
-        self.epochs = config.train_epoch if config else 40
-        self.batch_size = config.batch_size if config else 512
+    def __init__(self, config):
+        self.lr = config.learning_rate
+        self.weight_decay = config.weight_decay
+        self.epochs = config.train_epoch
+        self.batch_size = config.batch_size
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.net = MiniAlphaZeroNetWork()
         # self.net = BasicNetwork()
         self.net.to(self.device)
+        self.apply_trans = True
 
     def load_model(self, path_checkpoints, load_checkpoint_filename):
         assert os.path.isdir(path_checkpoints), 'Error: no checkpoint directory found!'
@@ -213,19 +215,34 @@ class Network:
             ndarray(72,) action_prob: all invalid action is masked to 0
             state_value(int): state_value of current env
         """
+        trans_idx = np.random.randint(0, len(board_transforms))
+        board_trans = board_transforms[trans_idx]
+
+        inverse_trans_idx = (4 - trans_idx) % 4 if trans_idx < 4 else trans_idx
+        prob_vec_inverse_trans = prob_vec_transforms[inverse_trans_idx]
+
         self.net.eval()
         with torch.no_grad():
-            qttt1, qttt2 = game_env.collapsed_qttts[0].to_tensor(), \
-                           game_env.collapsed_qttts[1].to_tensor()
+            if self.apply_trans:
+                qttt1, qttt2 = board_trans(game_env.collapsed_qttts[0].to_tensor()), \
+                               board_trans(game_env.collapsed_qttts[1].to_tensor())
+            else:
+                qttt1, qttt2 = game_env.collapsed_qttts[0].to_tensor(), \
+                               game_env.collapsed_qttts[1].to_tensor()
 
             qttt1 = qttt1.unsqueeze(0).to(self.device)
             qttt2 = qttt2.unsqueeze(0).to(self.device)
 
             output = self.net(qttt1, qttt2)
 
-        action_prob = F.softmax(output[0], dim=1).squeeze(0).detach().cpu().numpy()
+        if self.apply_trans:
+            action_prob = F.softmax(output[0], dim=1).squeeze(0) \
+                .detach().cpu().numpy()[prob_vec_inverse_trans]
+        else:
+            action_prob = F.softmax(output[0], dim=1).squeeze(0) \
+                .detach().cpu().numpy()
         state_value = output[1].item()
-        return action_prob*game_env.valid_action_mask, state_value
+        return action_prob * game_env.valid_action_mask, state_value
 
     def train(self, training_example):
         """
@@ -289,7 +306,13 @@ class Network:
 
 
 def example():
-    network = Network()
+    class config:
+        learning_rate = 1e-3
+        weight_decay = 1e-6
+        train_epoch = 10
+        batch_size = 512
+
+    network = Network(config)
     env = EnvForDeepRL()
     data = []
     for i in range(5):

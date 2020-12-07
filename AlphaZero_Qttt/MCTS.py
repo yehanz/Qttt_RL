@@ -24,6 +24,12 @@ class MCTS:
         self.Es = {}  # stores qttt.has_won() ended for board s
         self.Vs = {}  # # store valid moves given state s
 
+        # initialize blank chess board node
+        self.search(deepcopy(env))
+        self.env.change_to_even_pieces_view()
+        s = self.env.qttt.get_state()
+        self.Ps[s] = self.add_dirichlet_noise(self.Vs[s], self.Ps[s])
+
     def reset_game_env(self):
         self.env = EnvForDeepRL()
         self.env.change_to_even_pieces_view()
@@ -32,7 +38,7 @@ class MCTS:
         # always append act with change to even piece view
         self.env.act(action_code)
         self.env.change_to_even_pieces_view()
-        # Add Dirichlet Noise to the new root node
+        # Add Dirichlet Noise to the new root node to ensure exploration is always guarenteed
         s = self.env.qttt.get_state()
         # During battle no noise is added in order to perform the strongest play
         if s in self.Vs and is_train:

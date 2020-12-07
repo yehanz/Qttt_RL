@@ -4,6 +4,7 @@ from copy import deepcopy
 from AlphaZero_Qttt.MCTS import MCTS
 from AlphaZero_Qttt.Network import Network
 from AlphaZero_Qttt.env_bridge import EnvForDeepRL
+from Utils.get_sym import board_transforms, prob_vec_transforms
 
 
 def learn_from_self_play(nnet: Network, config, training_example=None):
@@ -27,28 +28,38 @@ def learn_from_self_play(nnet: Network, config, training_example=None):
     :return:
     """
     curr_net = nnet
+    training_example = [] if training_example is None else training_example
     # for each iteration, we train a new nn and compete with the older one
-    for i in range(config.numMCTSSims):
-        print('epoch %d' % i)
-        # for each round, keep 50% stale training data from last round
-        if len(training_example) > config.training_dataset_limit:
+    for epoch in range(config.numIters):
+        print('epoch %d' % epoch)
+
+        # keep some stale data
+        if not (epoch == 0 and config.skip_initial_data_drop) and \
+                len(training_example) > config.training_dataset_limit:
             training_example = training_example[:-int(
                 config.training_dataset_limit * (1 - config.fresh_data_percentage))]
 
-        # generate 50% new data with current nn
-        while len(training_example) < config.training_dataset_limit:
-            training_example += run_one_episode(curr_net, config)
+        # generate some new data with current nn
+        num_data = len(training_example)
+        while num_data < config.training_dataset_limit:
+            new_data = run_one_episode(curr_net, config)
+            num_data += len(new_data)
+            training_example += new_data
 
-        # save training examples for checkpoint
+        # save training examples for checkpoint since they are extremely time-consuming
+        # to generate
         pickle.dump(training_example, open(
-            config.load_checkpoint_filename + config.training_examples_filename, "wb"))
+            config.path_checkpoints + config.training_examples_filename, "wb"))
+
         # training a new nn based on curr nn
         competitor_net = deepcopy(curr_net)
         competitor_net.train(training_example)
 
         # if competitor_net better than self.curr_net
         new_wins, old_wins, tie = battle(competitor_net, curr_net, config)
-        print('win rate: %.3f, win %d loss %d tie %d' % (new_wins / config.updateThreshold, new_wins, old_wins, tie))
+        print('win rate: %.3f, win %d loss %d tie %d' %
+              (new_wins / config.roundsOfBattle, new_wins, old_wins, tie))
+
         if new_wins / config.roundsOfBattle > config.updateThreshold or \
                 new_wins + tie > 0.9 * config.roundsOfBattle:
             print('-------------save the better network-----------------')
@@ -56,46 +67,57 @@ def learn_from_self_play(nnet: Network, config, training_example=None):
             competitor_net.save(config)
             # use new network to generate training data
             curr_net = competitor_net
-            config.numMCTSSims = 400
-            config.training_dataset_limit = 8000
+            config.numMCTSSims = 5
+            config.training_dataset_limit = 8
         else:
-            config.numMCTSSims = 1.5*config.numMCTSSims
-            config.training_dataset_limit = 1.2*config.training_dataset_limit
+            # increase the policy evaluation power if no improvment is observed this term
+            config.numMCTSSims = int(1.2 * config.numMCTSSims)
+            config.training_dataset_limit = int(1.2 * config.training_dataset_limit)
 
 
 def run_one_episode(curr_net, config):
     game_env = EnvForDeepRL()
-    # we can use only 1 tree here
-    monte_carlo_trees = [MCTS(deepcopy(game_env), curr_net,
-                              config.numMCTSSims, config.cpuct),
-                         MCTS(deepcopy(game_env), curr_net,
-                              config.numMCTSSims, config.cpuct), ]
+    mc = MCTS(EnvForDeepRL(), curr_net, config.numMCTSSims, config.cpuct)
     training_examples = []
 
     while True:
         temp = 1 if game_env.round_ctr < 7 else 0
-        # get player's search tree
-        mc = monte_carlo_trees[game_env.current_player_id]
 
-        # [states_from_even_piece_view, probabilistic_policy, 1/-1]
+        # [states_from_even_piece_view, probabilistic_policy, 1/0]
         states, policy_given_state = mc.get_action_prob(temp)
 
         action_code = game_env.pick_a_valid_move(policy_given_state)
 
         # register data
-        training_examples.append([states, policy_given_state,
-                                  game_env.current_player_id])
+        training_examples += record_training_data(
+            states, policy_given_state, game_env.current_player_id)
 
         # step action
         _, _, reward, done = game_env.act(action_code)
-        for mct in monte_carlo_trees:
-            mct.step(action_code)
+        mc.step(action_code)
 
         if done:
             training_examples = update_reward(training_examples, reward, game_env.current_player_id)
             break
 
     return training_examples
+
+
+def record_training_data(states, policy_given_state, curr_player_id):
+    training_data = []
+    # get all symmetric cases of the chess board
+    # ATTENTION: when apply board_transforms[i] to qttt tensor, we must apply
+    # prob_vec_tranforms[i] correspondingly to the prob vector!
+    s1_tensor, s2_tensor = states[0].to_tensor(), states[1].to_tensor()
+    for i in range(len(board_transforms)):
+        training_data.append([
+            # transformed qttt tensor tuple
+            (board_transforms[i](s1_tensor), board_transforms[i](s2_tensor),),
+            # transformed qttt probability vector
+            policy_given_state[prob_vec_transforms[i]],
+            # current player id
+            curr_player_id])
+    return training_data
 
 
 def update_reward(training_examples, reward, curr_player_id):
