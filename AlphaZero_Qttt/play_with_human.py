@@ -21,6 +21,7 @@ def one_round_of_battle(net, config, human_first):
         _, _, reward, done = game_env.act(action_code)
         mc.step(action_code)
         game_env.qttt.visualize_board()
+        print('reward %f' % reward)
         if done:
             if reward > 0:
                 winner = 'human' if actor is human_actor else 'machine'
@@ -82,7 +83,7 @@ if __name__ == '__main__':
     net = Network(args)
     print("------------------------Load Model--------------------------")
     net.load_model(args.path_checkpoints, args.load_checkpoint_filename)
-
+    net.apply_trans = False
     score_board = {'machine': 0, 'human': 0, 'tie': 0}
 
     mod = input('1 for human play first, 2 for machine play first, 0 to get score borad summary and exit\n')

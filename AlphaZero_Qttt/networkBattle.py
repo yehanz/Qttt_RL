@@ -7,7 +7,7 @@ class args:
     train_epoch = 21
     learning_rate = 1.5e-3
 
-    roundsOfBattle = 50
+    roundsOfBattle = 40
     numMCTSSims = 100  # Number of games moves for MCTS to simulate.
     cpuct = 1
 
@@ -24,6 +24,6 @@ if __name__ == '__main__':
     n1.load_model(args.path_checkpoints, args.load_checkpoint_filename2)
     n1.apply_trans = True
     n2.load_model(args.path_checkpoints, args.load_checkpoint_filename1)
-    n2.apply_trans = True
+    n2.apply_trans = False
 
     print(battle(n1, n2, args))

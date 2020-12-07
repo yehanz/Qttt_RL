@@ -67,8 +67,8 @@ def learn_from_self_play(nnet: Network, config, training_example=None):
             competitor_net.save(config)
             # use new network to generate training data
             curr_net = competitor_net
-            config.numMCTSSims = 5
-            config.training_dataset_limit = 8
+            config.numMCTSSims = 400
+            config.training_dataset_limit = 4000*8
         else:
             # increase the policy evaluation power if no improvment is observed this term
             config.numMCTSSims = int(1.2 * config.numMCTSSims)
@@ -81,7 +81,7 @@ def run_one_episode(curr_net, config):
     training_examples = []
 
     while True:
-        temp = 1 if game_env.round_ctr < 7 else 0
+        temp = 1 if game_env.round_ctr > 7 else 0
 
         # [states_from_even_piece_view, probabilistic_policy, 1/0]
         states, policy_given_state = mc.get_action_prob(temp)
