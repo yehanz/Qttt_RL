@@ -1,5 +1,3 @@
-import pickle
-
 from Utils.get_sym import *
 
 
@@ -23,11 +21,4 @@ def record_training_data1(data):
 
 
 if __name__ == '__main__':
-    path_checkpoints = 'C:/Users/xiaon/OneDrive/backup/DL/teamProject/11292241alphaZeroRunnable/test/'
-    training_examples_load_filename = 'training_example.pt'
-    training_examples_save_filename = 'training_example_deepNN_sym.pt'
-    training_examples = pickle.load(open(path_checkpoints + training_examples_load_filename, "rb"))
-    ted_data = record_training_data1(training_examples)
-    print(len(ted_data))
-    pickle.dump(ted_data, open(
-        path_checkpoints + training_examples_save_filename, "wb"))
+    print((-1) ** (0 != 0))

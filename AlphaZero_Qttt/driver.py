@@ -4,9 +4,9 @@ from AlphaZero_Qttt.main_story import *
 class args:
     numIters = 1000
     updateThreshold = 0.0  # During arena playoff, new neural net will be accepted if threshold or more of games are won.
-    training_dataset_limit = 8  # Number of game examples to train the neural networks.
+    training_dataset_limit = 4000*8  # Number of game examples to train the neural networks.
     fresh_data_percentage = 0.3  # keep a given percent of stale data from previous iteration
-    numMCTSSims = 5  # Number of games moves for MCTS to simulate.
+    numMCTSSims = 400  # Number of games moves for MCTS to simulate.
     roundsOfBattle = 40  # Number of games to play during arena play to determine if new net will be accepted.
     cpuct = 1
 
